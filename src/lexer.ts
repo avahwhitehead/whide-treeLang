@@ -1,12 +1,13 @@
 import LexerException from "./exceptions/LexerException";
 
-type SYMBOL_TOKEN = '<' | '>' | '[' | ']' | '(' | ')' | '|' | '.' | ',' | '...';
+type SYMBOL_TOKEN = '<' | '>' | '[' | ']' | '(' | ')' | '|' | '.' | ',' | '...' | ':';
 
 //Symbols
 export const TKN_DOT: SYMBOL_TOKEN = '.';
 export const TKN_DOTS: SYMBOL_TOKEN = '...';
 export const TKN_BAR: SYMBOL_TOKEN = '|';
 export const TKN_COMMA: SYMBOL_TOKEN = ',';
+export const TKN_CTR: SYMBOL_TOKEN = ':';
 export const TKN_TREE_OPN: SYMBOL_TOKEN = '<';
 export const TKN_TREE_CLS: SYMBOL_TOKEN = '>';
 export const TKN_LIST_OPN: SYMBOL_TOKEN = '[';
@@ -16,15 +17,14 @@ export const TKN_PREN_CLS: SYMBOL_TOKEN = ')';
 const SYMBOL_LIST = [
 	TKN_DOTS, TKN_DOT,
 	TKN_COMMA, TKN_BAR,
+	TKN_CTR,
 	TKN_TREE_OPN, TKN_TREE_CLS,
 	TKN_LIST_OPN, TKN_LIST_CLS,
 	TKN_PREN_OPN, TKN_PREN_CLS,
 ];
 
-//Atoms
-export type TKN_ATOM = string;
 //All tokens
-export type TOKEN = SYMBOL_TOKEN | TKN_ATOM;
+export type TOKEN = SYMBOL_TOKEN | string;
 
 export default function lexer(converterString: string) : TOKEN[] {
 	let res: TOKEN[] = [];
@@ -45,7 +45,7 @@ export default function lexer(converterString: string) : TOKEN[] {
 			pos += token.length;
 			converterString = converterString.substr(token.length);
 		} else {
-			let atom: TKN_ATOM|null = _checkForAtomToken(converterString);
+			let atom: string|null = _checkForAtomToken(converterString);
 			if (atom == null) {
 				throw new LexerException(`SyntaxError: Unexpected token '${converterString.charAt(0)}' at position ${pos}`);
 			} else {
@@ -83,7 +83,7 @@ function _checkForSymbolToken(str: string) : SYMBOL_TOKEN|null {
  * @example {@code 'my atom'} returns {@code 'my'}
  * @returns	The matching atom string, or {@code null} if there isn't a match
  */
-function _checkForAtomToken(str: string) : TKN_ATOM|null {
+function _checkForAtomToken(str: string) : string|null {
 	let match: RegExpExecArray | null = /^[a-z0-9_]+/i.exec(str);
 	if (!match) return null;
 	return match[0];

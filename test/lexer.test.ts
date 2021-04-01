@@ -3,6 +3,7 @@ import { describe, it } from "mocha";
 import lexer, {
 	TKN_BAR,
 	TKN_COMMA,
+	TKN_CTR,
 	TKN_DOT,
 	TKN_DOTS,
 	TKN_LIST_CLS,
@@ -13,6 +14,65 @@ import lexer, {
 	TKN_TREE_OPN,
 	TOKEN
 } from "../src/lexer";
+
+describe('Lexer (symbols)', function () {
+	describe(`'|'`, function () {
+		it(`Should produce 'TKN_BAR'`, function () {
+			expect(lexer('|')).to.eql([TKN_BAR]);
+		})
+	})
+	describe(`,`, function () {
+		it(`Should produce 'TKN_COMMA'`, function () {
+			expect(lexer(',')).to.eql([TKN_COMMA]);
+		})
+	})
+	describe(`${TKN_CTR}`, function () {
+		it(`Should produce 'TKN_CTR'`, function () {
+			expect(lexer(':')).to.eql([TKN_CTR]);
+		})
+	})
+	describe(`${TKN_DOT}`, function () {
+		it(`Should produce 'TKN_DOT'`, function () {
+			expect(lexer('.')).to.eql([TKN_DOT]);
+		})
+	})
+	describe(`${TKN_DOTS}`, function () {
+		it(`Should produce 'TKN_DOTS'`, function () {
+			expect(lexer('...')).to.eql([TKN_DOTS]);
+		})
+	})
+
+	describe(`${TKN_LIST_OPN}`, function () {
+		it(`Should produce 'TKN_LIST_OPN'`, function () {
+			expect(lexer('[')).to.eql([TKN_LIST_OPN]);
+		})
+	})
+	describe(`${TKN_LIST_CLS}`, function () {
+		it(`Should produce 'TKN_LIST_CLS'`, function () {
+			expect(lexer(']')).to.eql([TKN_LIST_CLS]);
+		})
+	})
+	describe(`'(`, function () {
+		it(`Should produce 'TKN_PREN_OPN'`, function () {
+			expect(lexer('(')).to.eql([TKN_PREN_OPN]);
+		})
+	})
+	describe(`)`, function () {
+		it(`Should produce 'TKN_PREN_CLS'`, function () {
+			expect(lexer(')')).to.eql([TKN_PREN_CLS]);
+		})
+	})
+	describe(`<`, function () {
+		it(`Should produce 'TKN_TREE_OPN'`, function () {
+			expect(lexer('<')).to.eql([TKN_TREE_OPN]);
+		})
+	})
+	describe(`>`, function () {
+		it(`Should produce 'TKN_TREE_CLS'`, function () {
+			expect(lexer('>')).to.eql([TKN_TREE_CLS]);
+		})
+	})
+});
 
 describe('Lexer (whitespace)', function () {
 	describe(`''`, function () {
@@ -71,14 +131,6 @@ describe('Lexer (tokens)', function () {
 			const actual: TOKEN[] = lexer('my token');
 			expect(actual).to.eql(
 				['my', 'token']
-			);
-		});
-	});
-	describe(`'...'`, function () {
-		it(`should produce a single 'dots' token`, function () {
-			const actual: TOKEN[] = lexer('...');
-			expect(actual).to.eql(
-				['...']
 			);
 		});
 	});
