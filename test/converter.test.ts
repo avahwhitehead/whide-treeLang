@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import runConvert from "../src/runConvert";
+import runConvert from "../src/converter";
 import { BinaryTree } from "../src/types/Trees";
 
 function tn(n: number) : BinaryTree {
@@ -26,7 +26,7 @@ function s(l: any, r: any): BinaryTree {
 // Whitespace
 //================
 
-describe(`#parser (whitespace)`, function () {
+describe(`#runConvert (whitespace)`, function () {
 	describe(`Converter: ''`, function () {
 		const converter = 'any';
 		describe('nil', function () {
@@ -82,7 +82,7 @@ describe(`#parser (whitespace)`, function () {
 // Atoms
 //================
 
-describe(`#parser (tokens)`, function () {
+describe(`#runConvert (tokens)`, function () {
 	describe(`converter: 'nil'`, function () {
 		const converter = 'nil';
 		describe('nil', function () {
@@ -183,7 +183,7 @@ describe(`#parser (tokens)`, function () {
 // Trees
 //================
 
-describe(`#parser (trees)`, function () {
+describe(`#runConvert (trees)`, function () {
 	describe(`converter: '<nil.nil>'`, function () {
 		const converter = '<nil.nil>';
 		describe('nil', function () {
