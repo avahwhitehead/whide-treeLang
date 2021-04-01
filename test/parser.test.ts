@@ -15,6 +15,13 @@ function t(l: BinaryTree, r: BinaryTree): BinaryTree {
 	};
 }
 
+function s(l: any, r: any): BinaryTree {
+	return {
+		left: l,
+		right: r,
+	};
+}
+
 //================
 // Whitespace
 //================
@@ -167,6 +174,93 @@ describe(`#parser (tokens)`, function () {
 					t(t(null, null), t(null, null)),
 					converter
 				)).to.eql(t(t(null, null), t(null, null)));
+			});
+		});
+	});
+});
+
+//================
+// Trees
+//================
+
+describe(`#parser (trees)`, function () {
+	describe(`converter: '<nil.nil>'`, function () {
+		const converter = '<nil.nil>';
+		describe('nil', function () {
+			it('should produce an error node', function () {
+				expect(runConvert(null, converter)).to.eql({
+					expected: 'tree',
+					actual: null
+				});
+			});
+		});
+		describe('<nil.nil>', function () {
+			it('should produce the same tree', function () {
+				expect(runConvert(
+					t(null, null),
+					converter
+				)).to.eql(t(null, null));
+			});
+		});
+		describe('<nil.<nil.nil>>', function () {
+			it('should produce an error on the right-node', function () {
+				expect(runConvert(
+					t(null, t(null, null)),
+					converter
+				)).to.eql(
+					s(null, {
+						expected: 'nil',
+						actual: t(null, null)
+					})
+				);
+			});
+		});
+	});
+
+	describe(`converter: '<nil.any>'`, function () {
+		const converter = '<nil.any>';
+		describe('nil', function () {
+			it('should produce an error node', function () {
+				expect(runConvert(
+					null,
+					converter
+				)).to.eql({
+					expected: 'tree',
+					actual: null
+				});
+			});
+		});
+		describe('<nil.nil>', function () {
+			it('should produce the same tree', function () {
+				expect(runConvert(
+					t(null, null),
+					converter
+				)).to.eql(
+					t(null, null)
+				);
+			});
+		});
+		describe('<nil.<nil.<nil.nil>>>', function () {
+			it('should produce the same tree', function () {
+				expect(runConvert(
+					t(null, t(null, t(null, null))),
+					converter
+				)).to.eql(
+					t(null, t(null, t(null, null)))
+				);
+			});
+		});
+		describe('<<nil.nil>.<nil.nil>>', function () {
+			it('should produce the same tree', function () {
+				expect(runConvert(
+					t(t(null, null), t(null, null)),
+					converter
+				)).to.eql(
+					s({
+						expected: 'nil',
+						actual: t(null, null)
+					}, t(null, null))
+				);
 			});
 		});
 	});

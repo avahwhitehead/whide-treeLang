@@ -1,4 +1,9 @@
-import lexer from "./lexer";
+import lexer, {
+	TKN_DOT,
+	TKN_TREE_CLS,
+	TKN_TREE_OPN,
+	TOKEN
+} from "./lexer";
 import { BinaryTree, ConvertedBinaryTree } from "./types/Trees";
 import ParserException from "./exceptions/ParserException";
 
@@ -47,15 +52,61 @@ function _matchAtom(atom: string, tree: BinaryTree): ConvertedBinaryTree {
 }
 
 /**
+ * Match the binary tree against an explicit tree in the conversion string
+ * @param tree		The binary tree to convert
+ * @param tokens	Token list representing the conversion string
+ */
+function _matchTree(tree: BinaryTree, tokens: TOKEN[]): ConvertedBinaryTree {
+	if (tree == null) {
+		return {
+			//TODO: Display actual value here instead of "tree"
+			expected: 'tree',
+			actual: tree
+		}
+	}
+
+	//Left side of the tree
+	let left = _convert(tree.left, tokens);
+
+	//Dot
+	let dot = tokens.shift();
+	if (dot !== TKN_DOT) throw new ParserException(`SyntaxError: Expected '${TKN_DOT}' but got '${dot}'`);
+
+	//Right side of the tree
+	let right = _convert(tree.right, tokens);
+
+	let close = tokens.shift();
+	if (close !== TKN_TREE_CLS) throw new ParserException(`SyntaxError: Expected '${TKN_TREE_CLS}' but got '${dot}'`);
+
+	//Return the created tree
+	return {
+		left,
+		right
+	};
+}
+
+function _convert(tree: BinaryTree, tokens: TOKEN[]): ConvertedBinaryTree {
+	let next = tokens.shift();
+	if (!next) throw new ParserException(`Unexpected end of string`);
+
+	if (next === TKN_TREE_OPN) {
+		//The token is the start of a tree node
+		return _matchTree(tree, tokens);
+	} else {
+		//Assume anything else is an atom
+		return _matchAtom(next, tree);
+	}
+}
+
+/**
  * Convert a binary tree from a tree to a number
  * @param tree	The tree to interpret
  * @param str	The conversion string
  */
 export default function runConvert(tree: BinaryTree, str: string) : ConvertedBinaryTree {
+	//Lex the input
 	let tokens = lexer(str);
-
-	let next = tokens.shift();
-	if (next) return _matchAtom(next, tree);
 	//Treat empty input as 'any'
-	else return tree;
+	if (tokens === []) return tree;
+	return _convert(tree, tokens);
 }
