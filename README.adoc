@@ -1,0 +1,61 @@
+= HWhile Wrapper
+Alaric Whitehead <aw548@sussex.ac.uk>, Supervisor: Dr Bernhard Reus <bernhard@sussex.ac.uk>
+1.0, 14 November, 2020
+:doctype: article
+:icons: font
+//URL aliases:
+:chai: https://www.npmjs.com/package/chai
+:electron: https://www.electronjs.org/
+:mocha: https://www.npmjs.com/package/mocha
+:whide: https://github.com/sonrad10/Whide
+
+[#language-description]
+== Language description
+
+//TODO: Cite typescript
+This language was loosely inspired by TypeScript's type declaration syntax.
+
+This language is less powerful than the converters, however it does not require any knowledge of JavaScript to use, it can be quickly written and adapted while the editor is running, and it supports the majority of use cases (trees, numbers, and lists and n-layered nested lists of numbers or trees).
+
+Here, the term "type" is used to refer to any valid atom or structure (defined below) in the expression language.
+
+//TODO: Convert this to a CFG
+
+Atoms:
+
+* `nil` accepts the `nil` literal exactly.
+* `false` = `nil`
+* `true` = `+<nil.nil>+`
+* `bool` = `true|false`
+* `int` = `nil|<nil.int>`
+* `any` accepts any tree in its place
+* `?` = `any`
+* Integers are all converted to their WHILE representations (e.g. `0` is `nil`, `1` is `+<nil.nil>+`, 2 is `+<nil.<nil.nil>>+`, etc)
+
+Users can also define their own type definitions in the Whide settings, which can be either used directly to interpret data, or as atomic types in other declarations.
+
+Atoms are also assigned numeric values *somehow*
+
+Structures:
+
+* `<L.R>` matches a tree where the left node matches the type `L`, and the right node matches the type `R`.
+* `T[]` matches a list of elements of type `T`
+* `(S|T)[]` matches a list of elements of a mixture of types `S` and `T`
+* `[S,T]` matches a list of 2 items, the first of type `S`, the second of type `T`
+* `[S,T,...,U,V]` matches a list of at least 4 items, the first of type `S`, the second of type `T`, and the final 2 of type `U` and `V` respectively.
+
+===== Examples
+
+* `int[]` converts any tree representing a list of integers to its list form.
+* `+<nil.nil>+` is `[0]`
+* `+<<nil.<nil.nil>>.<<nil.nil>.nil>>+` is `[2,1]`
+* `+nil+` is `[]`
+
+
+=== Treelang examples
+
+[source]
+----
+nil[]
+
+----

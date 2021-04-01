@@ -1,0 +1,37 @@
+{
+  "name": "@whide/tree-lang",
+  "version": "1.0.0",
+  "description": "Library module for the Whide editor's tree language",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "type": "module",
+  "files": [
+    "lib/"
+  ],
+  "scripts": {
+    "tsc": "tsc -p tsconfig.json",
+    "test": "mocha -r chai -r esm -r ts-node/register 'test/**/*.[jt]s'",
+    "test-specific": "mocha -r chai -r esm -r ts-node/register",
+    "release": "standard-version",
+    "prepublish": "npm run tsc"
+  },
+  "keywords": [],
+  "author": "Alaric Whitehead",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/chai": "^4.2.15",
+    "@types/mocha": "^8.2.0",
+    "@types/node": "^14.14.19",
+    "@typescript-eslint/eslint-plugin": "^4.15.0",
+    "@typescript-eslint/parser": "^4.15.0",
+    "babel-eslint": "^10.1.0",
+    "chai": "^4.3.0",
+    "eslint": "^6.7.2",
+    "esm": "^3.2.25",
+    "mocha": "^8.2.1",
+    "standard-version": "^9.1.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.5"
+  }
+}
