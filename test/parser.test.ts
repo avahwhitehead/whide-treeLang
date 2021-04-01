@@ -84,7 +84,7 @@ describe(`#parser (tokens)`, function () {
 			});
 		});
 		describe('<nil.nil>', function () {
-			it('should produce the same tree', function () {
+			it('should return an error node', function () {
 				expect(runConvert(
 					t(null, null),
 					converter
@@ -95,7 +95,7 @@ describe(`#parser (tokens)`, function () {
 			});
 		});
 		describe('<<nil.nil>.<nil.nil>>', function () {
-			it('should produce the same tree', function () {
+			it('should return an error node', function () {
 				expect(runConvert(
 					t(t(null, null), t(null, null)),
 					converter
@@ -110,7 +110,7 @@ describe(`#parser (tokens)`, function () {
 	describe(`converter: 'int'`, function () {
 		const converter = 'int';
 		describe('nil', function () {
-			it('should match', function () {
+			it('should produce 0', function () {
 				expect(runConvert(
 					null,
 					converter
@@ -118,7 +118,7 @@ describe(`#parser (tokens)`, function () {
 			});
 		});
 		describe('<nil.nil>', function () {
-			it('should produce the same tree', function () {
+			it('should produce 1', function () {
 				expect(runConvert(
 					t(null, null),
 					converter
@@ -126,7 +126,7 @@ describe(`#parser (tokens)`, function () {
 			});
 		});
 		describe('<nil.<nil.<nil.nil>>>', function () {
-			it('should produce the same tree', function () {
+			it('should produce 3', function () {
 				expect(runConvert(
 					t(null, t(null, t(null, null))),
 					converter
@@ -134,7 +134,7 @@ describe(`#parser (tokens)`, function () {
 			});
 		});
 		describe('<<nil.nil>.<nil.nil>>', function () {
-			it('should produce the same tree', function () {
+			it('should return an error node', function () {
 				expect(runConvert(
 					t(t(null, null), t(null, null)),
 					converter
@@ -149,7 +149,7 @@ describe(`#parser (tokens)`, function () {
 	describe(`converter: 'any'`, function () {
 		const converter = 'any';
 		describe('nil', function () {
-			it('should match', function () {
+			it('should produce nil', function () {
 				expect(runConvert(null, converter)).to.eql(null);
 			});
 		});

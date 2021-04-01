@@ -20,7 +20,7 @@ function _readNumber(tree: BinaryTree, cur = 0): number|undefined {
  * @param atom	The atom to use
  * @param tree	The tree to convert
  */
-function _parseAtom(atom: string, tree: BinaryTree): ConvertedBinaryTree {
+function _matchAtom(atom: string, tree: BinaryTree): ConvertedBinaryTree {
 	if (atom === 'nil') {
 		//The tree has to be `null` to be valid
 		if (tree === null) return null;
@@ -31,6 +31,7 @@ function _parseAtom(atom: string, tree: BinaryTree): ConvertedBinaryTree {
 	} else if (atom === 'any') {
 		//Any value is valid here
 		return tree;
+	//TODO: Replace 'int' with a substitution (when custom atoms/counters are supported) of '<nil:count:.int>|nil'
 	} else if (atom === 'int') {
 		//Try to convert the tree to a number
 		let num = _readNumber(tree);
@@ -54,7 +55,7 @@ export default function runConvert(tree: BinaryTree, str: string) : ConvertedBin
 	let tokens = lexer(str);
 
 	let next = tokens.shift();
-	if (next) return _parseAtom(next, tree);
+	if (next) return _matchAtom(next, tree);
 	//Treat empty input as 'any'
 	else return tree;
 }
