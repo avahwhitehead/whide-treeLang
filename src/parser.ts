@@ -68,7 +68,7 @@ function _isList(tokens: TOKEN[]): boolean {
 	tokens.shift();
 
 	//The next token must be a closing bracket
-	_expect(TKN_LIST_CLS, tokens);
+	_expect(tokens, TKN_LIST_CLS);
 
 	//A valid tree was received
 	return true;
@@ -103,10 +103,10 @@ function _unexpectedToken(actual: string, expected?: string): ParserException {
 /**
  * Read the next token from the list.
  * Throws an error if the token list is empty, or if the token doesn't match the expected value
- * @param expected	The expected token. May be undefined to accept any token.
  * @param tokens	The token list
+ * @param expected	The expected token. May be undefined to accept any token.
  */
-function _expect(expected: TOKEN|undefined, tokens: TOKEN[]): TOKEN {
+function _expect(tokens: TOKEN[], expected?: TOKEN): TOKEN {
 	//Read the next token in the list
 	const first = tokens.shift();
 
@@ -135,7 +135,7 @@ function _expect(expected: TOKEN|undefined, tokens: TOKEN[]): TOKEN {
  */
 function _readAtom(tokens: TOKEN[]) : string|ConversionTree {
 	//Read the first token in the list, or error if it doesn't exist
-	let first: TOKEN = _expect(undefined, tokens);
+	let first: TOKEN = _expect(tokens);
 
 	let res: string|ConversionTree;
 	switch (first) {
@@ -224,7 +224,7 @@ function _interpretParen(tokens: TOKEN[]): ConversionTree {
 	//Read the contents of the parentheses
 	let tree: ConversionTree = _readAllAtoms(tokens);
 	//Expect a closing paren
-	_expect(TKN_PREN_CLS, tokens);
+	_expect(tokens, TKN_PREN_CLS);
 	//Return the produced type
 	return tree;
 }
@@ -238,11 +238,11 @@ function _interpretTree(tokens: TOKEN[]): TreeType {
 	//Read the left-hand child
 	let left: ConversionTree = _readAllAtoms(tokens);
 	//Expect a separator between the elements
-	_expect(TKN_DOT, tokens);
+	_expect(tokens, TKN_DOT);
 	//Read the right-hand child
 	let right: ConversionTree = _readAllAtoms(tokens);
 	//Expect a matching closing bracket
-	_expect(TKN_TREE_CLS, tokens);
+	_expect(tokens, TKN_TREE_CLS);
 	//Return the tree type
 	return {
 		category: "tree",
