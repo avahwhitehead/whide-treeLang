@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
 import parse, { ConversionTree } from "../src/parser";
-import lexer from "../src/lexer";
+import lexer, { TKN_LIST_OPN, TKN_PREN_OPN, TKN_TREE_OPN } from "../src/lexer";
 
 describe(`#parser (valid)`, function () {
 	describe('any', function () {
@@ -284,13 +284,12 @@ describe(`#parser (valid)`, function () {
 
 	describe(`''`, function () {
 		it('should treat an empty list as an `any` input', function () {
-			let tokens = [];
 			const expected: ConversionTree = {
 				category: 'choice',
 				type: ['any'],
 			};
 			expect(
-				parse(tokens)
+				parse([])
 			).to.eql(expected);
 		});
 	});
