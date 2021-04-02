@@ -107,18 +107,35 @@ function _readAtom(tokens: TOKEN[]) : string|ConversionTree {
 	if (first === undefined) throw new ParserException('Unexpected end of string')
 
 	let res: string|ConversionTree;
-	//Interpret the next part of the token list as a tree
-	if (first === TKN_TREE_OPN) res = _interpretTree(tokens);
+	switch (first) {
+		//These should only ever be encountered by type-specific methods
+		//Never by this method directly
+		case TKN_BAR:
+		case TKN_COMMA:
+		case TKN_CTR:
+		case TKN_DOT:
+		case TKN_DOTS:
+		case TKN_LIST_CLS:
+		case TKN_PREN_CLS:
+		case TKN_TREE_CLS:
+			throw new ParserException(`Unexpected token '${first}'`);
+		case undefined:
+			throw new ParserException(`Unexpected end of string`);
 
-	//Read the contents of the parentheses
-	else if (first === TKN_PREN_OPN) res = _interpretParen(tokens);
-
-	//Allow atomic types
-	else {
-		res = {
-			category: 'choice',
-			type: [first],
-		};
+		//Interpret the next part of the token list as a tree
+		case TKN_TREE_OPN:
+			res = _interpretTree(tokens);
+			break;
+		//Read the contents of the parentheses
+		case TKN_PREN_OPN:
+			res = _interpretParen(tokens);
+			break;
+		//Allow atomic types
+		default:
+			res = {
+				category: 'choice',
+				type: [first],
+			};
 	}
 
 	//Wrap in nested lists as needed
@@ -219,27 +236,8 @@ function _interpretTree(tokens: TOKEN[]): TreeType {
  * @param tokens	The token list to parse
  */
 export default function parse(tokens: TOKEN[]) : ConversionTree {
-	let first = tokens.shift();
-
-	let res: ConversionTree;
-	switch (first) {
-		case TKN_BAR:
-		case TKN_COMMA:
-		case TKN_CTR:
-		case TKN_DOT:
-		case TKN_DOTS:
-		case TKN_LIST_CLS:
-		case TKN_PREN_CLS:
-		case TKN_TREE_CLS:
-			throw new ParserException(`Unexpected token '${first}'`);
-		case undefined:
-			throw new ParserException(`Unexpected end of string`);
-		case TKN_PREN_OPN:
-		case TKN_TREE_OPN:
-		case TKN_LIST_OPN:
-		default:
-			res = _readAllAtoms([first, ...tokens]);
-	}
+	//Parse the token list
+	let res: ConversionTree = _readAllAtoms(tokens);
 
 	//Unwrap the root node if it is a choice of only 1 option
 	if (res.category === 'choice' && res.type.length === 1) {
