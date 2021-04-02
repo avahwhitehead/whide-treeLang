@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import parse, { ConversionTree } from "../src/parser";
+import parse, { ChoiceType, ConversionTree } from "../src/parser";
 import lexer, {
 	TKN_BAR,
 	TKN_COMMA,
@@ -304,12 +304,123 @@ describe(`#parser (valid)`, function () {
 			).to.eql(expected);
 		});
 	});
+
+	describe(`Fixed list tests`, function () {
+		const nil: ChoiceType = {
+			category: 'choice',
+			type: ['nil'],
+		};
+
+		describe(`'[]'`, function () {
+			it('should match an empty list only', function () {
+				let tokens = lexer('[]');
+				const expected: ConversionTree = nil;
+				expect(
+					parse(tokens)
+				).to.eql(expected);
+			});
+		});
+		describe(`'[nil]'`, function () {
+			it('should match ', function () {
+				let tokens = lexer('[nil]');
+				const expected: ConversionTree = {
+					category: 'tree',
+					left: nil,
+					right: nil,
+				};
+				expect(
+					parse(tokens)
+				).to.eql(expected);
+			});
+		});
+		describe(`'[nil,nil]'`, function () {
+			it('should match ', function () {
+				let tokens = lexer('[nil,nil]');
+				const expected: ConversionTree = {
+					category: 'tree',
+					left: nil,
+					right: {
+						category: 'tree',
+						left: nil,
+						right: nil,
+					},
+				};
+				expect(
+					parse(tokens)
+				).to.eql(expected);
+			});
+		});
+		describe(`'[nil,any]'`, function () {
+			it('should match ', function () {
+				let tokens = lexer('[nil,any]');
+				const expected: ConversionTree = {
+					category: 'tree',
+					left: nil,
+					right: {
+						category: 'tree',
+						left: {
+							category: 'choice',
+							type: ['any'],
+						},
+						right: nil,
+					},
+				};
+				expect(
+					parse(tokens)
+				).to.eql(expected);
+			});
+		});
+		describe(`'[int|any,int|any]'`, function () {
+			it('should match ', function () {
+				let tokens = lexer('[int|any,int|any]');
+				const expected: ConversionTree = {
+					category: 'tree',
+					left: {
+						category: 'choice',
+						type: ['int', 'any'],
+					},
+					right: {
+						category: 'tree',
+						left: {
+							category: 'choice',
+							type: ['int', 'any'],
+						},
+						right: nil,
+					},
+				};
+				expect(
+					parse(tokens)
+				).to.eql(expected);
+			});
+		});
+		describe(`'[nil,nil][]'`, function () {
+			it('should match ', function () {
+				let tokens = lexer('[nil,nil][]');
+				const expected: ConversionTree = {
+					category: 'list',
+					type: {
+						category: 'tree',
+						left: nil,
+						right: {
+							category: 'tree',
+							left: nil,
+							right: nil,
+						},
+					},
+				};
+				expect(
+					parse(tokens)
+				).to.eql(expected);
+			});
+		});
+	});
 });
 
 //TODO: (int|any)|any
 //TODO: int|(any|any)
 //TODO: (int|any|any)
-//TODO: [nil,nil][]
+//TODO: Counters
+//TODO: Stacked Counters `nil:ctr1::ctr2:`
 
 describe(`#parser (invalid)`, function () {
 	describe(`Unmatched tokens`, function () {

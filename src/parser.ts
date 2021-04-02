@@ -95,9 +95,10 @@ function _addToChoice(parent: ChoiceType, child: string|ConversionTree) {
  * @param actual	The actual token received
  * @param expected	The expected token (or undefined)
  */
-function _unexpectedToken(actual: string, expected?: string): ParserException {
-	if (!expected) return new ParserException(`Unexpected token: '${actual}'`);
-	return new ParserException(`Unexpected token: got '${actual}' expected '${expected}'`);
+function _unexpectedToken(actual: string, ...expected: string[]): ParserException {
+	if (expected.length === 0) return new ParserException(`Unexpected token: '${actual}'`);
+	if (expected.length === 1) return new ParserException(`Unexpected token: got '${actual}' expected '${expected[0]}'`);
+	return new ParserException(`Unexpected token: got '${actual}' expected one of '${expected.join(`', '`)}'`);
 }
 
 /**
@@ -106,23 +107,54 @@ function _unexpectedToken(actual: string, expected?: string): ParserException {
  * @param tokens	The token list
  * @param expected	The expected token. May be undefined to accept any token.
  */
-function _expect(tokens: TOKEN[], expected?: TOKEN): TOKEN {
+function _expect(tokens: TOKEN[], ...expected: TOKEN[]): TOKEN {
 	//Read the next token in the list
 	const first = tokens.shift();
 
 	//Unexpected end of token list
 	if (first === undefined) {
-		if (expected === undefined) throw new ParserException(`Unexpected end of input`);
-		else throw new ParserException(`Unexpected end of input: Expected '${expected}'`);
+		if (expected.length === 0) throw new ParserException(`Unexpected end of input`);
+		else if (expected.length === 1) throw new ParserException(`Unexpected end of input: Expected '${expected[0]}'`);
+		else throw new ParserException(`Unexpected end of input: Expected one of '${expected.join(`', '`)}'`);
 	}
 
-	//The token matches the expected value
-	if (first === expected) return first;
 	//Allow any token if no expected was provided
-	if (expected === undefined) return first;
+	if (expected.length === 0) return first;
+	//The token matches the expected value
+	if (expected.includes(first)) return first;
 
 	//The token is unexpected - throw an error
-	throw _unexpectedToken(first, expected);
+	throw _unexpectedToken(first, ...expected);
+}
+
+/**
+ * Parse the internals of a list.
+ * Expects the {@code TKN_LST_OPN} to have already been consumed
+ * @param tokens	The token list
+ */
+function _interpretListInternal(tokens: TOKEN[]): ConversionTree {
+	//Parse the first element of the list
+	let left: ConversionTree = _readAllAtoms(tokens);
+	//The next token should either be a comma, or list closing token
+	let token = _expect(tokens, TKN_COMMA, TKN_LIST_CLS);
+
+	let right: ConversionTree;
+	if (token === TKN_LIST_CLS) {
+		//If the list ends here, the right node should be `nil`
+		right = {
+			category: 'choice',
+			type: ['nil']
+		};
+	} else {
+		//Otherwise, continue parsing the list
+		right = _interpretListInternal(tokens);
+	}
+	//Return the created list node
+	return {
+		category: 'tree',
+		left: left,
+		right: right,
+	};
 }
 
 //========
@@ -130,7 +162,7 @@ function _expect(tokens: TOKEN[], expected?: TOKEN): TOKEN {
 //========
 
 /**
- * Read a single atom (nil/int/nil[]/int[]/nil[][]...)
+ * Read the next atom (nil/int/nil[]/int[]/nil[][]...) from the token list
  * @param tokens	The token list
  */
 function _readAtom(tokens: TOKEN[]) : string|ConversionTree {
@@ -159,6 +191,9 @@ function _readAtom(tokens: TOKEN[]) : string|ConversionTree {
 		case TKN_PREN_OPN:
 			res = _interpretParen(tokens);
 			break;
+		case TKN_LIST_OPN:
+			res = _interpretList(tokens);
+			break;
 		//Allow atomic types
 		default:
 			res = {
@@ -183,7 +218,7 @@ function _readAtom(tokens: TOKEN[]) : string|ConversionTree {
 }
 
 /**
- * Read as many atoms as possible (atom[|atom[|atom[...]]])
+ * Read as many atoms as possible (atom[|atom[|atom[...]]]) from the token list
  * @param tokens
  */
 function _readAllAtoms(tokens: TOKEN[]): ConversionTree {
@@ -249,6 +284,23 @@ function _interpretTree(tokens: TOKEN[]): TreeType {
 		left: left,
 		right: right,
 	};
+}
+
+/**
+ * Read a fixed type list from the token list.
+ * Expects the opening symbol to have already been removed from the token list.
+ * @param tokens	The token list
+ */
+function _interpretList(tokens: TOKEN[]): ConversionTree {
+	//Return a `nil` token if the list has no content
+	if (tokens[0] === TKN_LIST_CLS) {
+		return {
+			category: 'choice',
+			type: ['nil']
+		};
+	}
+	//Parse the elements of the list
+	return _interpretListInternal(tokens);
 }
 
 /**
