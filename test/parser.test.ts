@@ -281,6 +281,19 @@ describe(`#parser (valid)`, function () {
 			).to.eql(expected);
 		});
 	});
+
+	describe(`''`, function () {
+		it('should treat an empty list as an `any` input', function () {
+			let tokens = [];
+			const expected: ConversionTree = {
+				category: 'choice',
+				type: ['any'],
+			};
+			expect(
+				parse(tokens)
+			).to.eql(expected);
+		});
+	});
 });
 
 //TODO: (int|any)|any
@@ -289,13 +302,5 @@ describe(`#parser (valid)`, function () {
 //TODO: [nil,nil][]
 
 describe(`#parser (invalid)`, function () {
-	describe(`''`, function () {
-		it('should produce', function () {
-			expect(
-				() => parse([])
-			).to.throw(
-				`Unexpected end of string`
-			);
-		});
-	});
+
 });

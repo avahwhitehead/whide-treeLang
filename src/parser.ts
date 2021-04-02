@@ -236,6 +236,9 @@ function _interpretTree(tokens: TOKEN[]): TreeType {
  * @param tokens	The token list to parse
  */
 export default function parse(tokens: TOKEN[]) : ConversionTree {
+	//Treat an empty input list as matching any tree
+	if (tokens.length === 0) tokens = ['any'];
+
 	//Parse the token list
 	let res: ConversionTree = _readAllAtoms(tokens);
 
