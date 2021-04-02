@@ -67,9 +67,8 @@ function _isList(tokens: TOKEN[]): boolean {
 	//Remove the opening bracket
 	tokens.shift();
 
-	//Expect the next token to be a closing bracket
-	let close = tokens.shift();
-	if (close !== TKN_LIST_CLS) throw new ParserException(`Unexpected token: ${close} expected '${TKN_LIST_CLS}'`);
+	//The next token must be a closing bracket
+	_expect(TKN_LIST_CLS, tokens);
 
 	//A valid tree was received
 	return true;
@@ -91,6 +90,41 @@ function _addToChoice(parent: ChoiceType, child: string|ConversionTree) {
 	return parent;
 }
 
+/**
+ * Create an error object for when an expected token is received
+ * @param actual	The actual token received
+ * @param expected	The expected token (or undefined)
+ */
+function _unexpectedToken(actual: string, expected?: string): ParserException {
+	if (!expected) return new ParserException(`Unexpected token: '${actual}'`);
+	return new ParserException(`Unexpected token: got '${actual}' expected '${expected}'`);
+}
+
+/**
+ * Read the next token from the list.
+ * Throws an error if the token list is empty, or if the token doesn't match the expected value
+ * @param expected	The expected token. May be undefined to accept any token.
+ * @param tokens	The token list
+ */
+function _expect(expected: TOKEN|undefined, tokens: TOKEN[]): TOKEN {
+	//Read the next token in the list
+	const first = tokens.shift();
+
+	//Unexpected end of token list
+	if (first === undefined) {
+		if (expected === undefined) throw new ParserException(`Unexpected end of input`);
+		else throw new ParserException(`Unexpected end of input: Expected '${expected}'`);
+	}
+
+	//The token matches the expected value
+	if (first === expected) return first;
+	//Allow any token if no expected was provided
+	if (expected === undefined) return first;
+
+	//The token is unexpected - throw an error
+	throw _unexpectedToken(first, expected);
+}
+
 //========
 // Atoms
 //========
@@ -100,11 +134,8 @@ function _addToChoice(parent: ChoiceType, child: string|ConversionTree) {
  * @param tokens	The token list
  */
 function _readAtom(tokens: TOKEN[]) : string|ConversionTree {
-	//TODO: Validate this is actually a valid atom
-	let first = tokens.shift();
-
-	//The token list is unexpectedly empty
-	if (first === undefined) throw new ParserException('Unexpected end of string')
+	//Read the first token in the list, or error if it doesn't exist
+	let first: TOKEN = _expect(undefined, tokens);
 
 	let res: string|ConversionTree;
 	switch (first) {
@@ -118,9 +149,7 @@ function _readAtom(tokens: TOKEN[]) : string|ConversionTree {
 		case TKN_LIST_CLS:
 		case TKN_PREN_CLS:
 		case TKN_TREE_CLS:
-			throw new ParserException(`Unexpected token '${first}'`);
-		case undefined:
-			throw new ParserException(`Unexpected end of string`);
+			throw _unexpectedToken(first);
 
 		//Interpret the next part of the token list as a tree
 		case TKN_TREE_OPN:
@@ -185,6 +214,7 @@ function _readAllAtoms(tokens: TOKEN[]): ConversionTree {
 //========
 //Sections
 //========
+
 /**
  * Read a pair of parentheses and their content from the token list.
  * Expects the opening paren to have already been removed from the list.
@@ -193,11 +223,8 @@ function _readAllAtoms(tokens: TOKEN[]): ConversionTree {
 function _interpretParen(tokens: TOKEN[]): ConversionTree {
 	//Read the contents of the parentheses
 	let tree: ConversionTree = _readAllAtoms(tokens);
-
 	//Expect a closing paren
-	let close = tokens.shift();
-	if (close !== TKN_PREN_CLS) throw new ParserException(`Unexpected token: '${close}' expected '${TKN_PREN_CLS}'`);
-
+	_expect(TKN_PREN_CLS, tokens);
 	//Return the produced type
 	return tree;
 }
@@ -210,18 +237,12 @@ function _interpretParen(tokens: TOKEN[]): ConversionTree {
 function _interpretTree(tokens: TOKEN[]): TreeType {
 	//Read the left-hand child
 	let left: ConversionTree = _readAllAtoms(tokens);
-
 	//Expect a separator between the elements
-	let dot = tokens.shift();
-	if (dot !== TKN_DOT) throw new ParserException(`Unexpected token: '${dot}' expected '${TKN_DOT}'`);
-
+	_expect(TKN_DOT, tokens);
 	//Read the right-hand child
 	let right: ConversionTree = _readAllAtoms(tokens);
-
 	//Expect a matching closing bracket
-	let close = tokens.shift();
-	if (close !== TKN_TREE_CLS) throw new ParserException(`Unexpected token: '${close}' expected '${TKN_TREE_CLS}'`);
-
+	_expect(TKN_TREE_CLS, tokens);
 	//Return the tree type
 	return {
 		category: "tree",
