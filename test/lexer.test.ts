@@ -17,53 +17,73 @@ import lexer, {
 describe('Lexer (symbols)', function () {
 	describe(`'|'`, function () {
 		it(`Should produce 'TKN_BAR'`, function () {
-			expect(lexer('|')).to.eql([TKN_BAR]);
+			const expected: TOKEN[] = [TKN_BAR];
+			const actual: TOKEN[] = lexer('|');
+			expect(actual).to.eql(expected);
 		})
 	})
 	describe(`,`, function () {
 		it(`Should produce 'TKN_COMMA'`, function () {
-			expect(lexer(',')).to.eql([TKN_COMMA]);
+			const expected: TOKEN[] = [TKN_COMMA];
+			const actual: TOKEN[] = lexer(',');
+			expect(actual).to.eql(expected);
 		})
 	})
 	describe(`${TKN_CTR}`, function () {
 		it(`Should produce 'TKN_CTR'`, function () {
-			expect(lexer(':')).to.eql([TKN_CTR]);
+			const expected: TOKEN[] = [TKN_CTR];
+			const actual: TOKEN[] = lexer(':');
+			expect(actual).to.eql(expected);
 		})
 	})
 	describe(`${TKN_DOT}`, function () {
 		it(`Should produce 'TKN_DOT'`, function () {
-			expect(lexer('.')).to.eql([TKN_DOT]);
+			const expected: TOKEN[] = [TKN_DOT];
+			const actual: TOKEN[] = lexer('.');
+			expect(actual).to.eql(expected);
 		})
 	})
 
 	describe(`${TKN_LIST_OPN}`, function () {
 		it(`Should produce 'TKN_LIST_OPN'`, function () {
-			expect(lexer('[')).to.eql([TKN_LIST_OPN]);
+			const expected: TOKEN[] = [TKN_LIST_OPN];
+			const actual: TOKEN[] = lexer('[');
+			expect(actual).to.eql(expected);
 		})
 	})
 	describe(`${TKN_LIST_CLS}`, function () {
 		it(`Should produce 'TKN_LIST_CLS'`, function () {
-			expect(lexer(']')).to.eql([TKN_LIST_CLS]);
+			const expected: TOKEN[] = [TKN_LIST_CLS];
+			const actual: TOKEN[] = lexer(']');
+			expect(actual).to.eql(expected);
 		})
 	})
 	describe(`'(`, function () {
 		it(`Should produce 'TKN_PREN_OPN'`, function () {
-			expect(lexer('(')).to.eql([TKN_PREN_OPN]);
+			const expected: TOKEN[] = [TKN_PREN_OPN];
+			const actual: TOKEN[] = lexer('(');
+			expect(actual).to.eql(expected);
 		})
 	})
 	describe(`)`, function () {
 		it(`Should produce 'TKN_PREN_CLS'`, function () {
-			expect(lexer(')')).to.eql([TKN_PREN_CLS]);
+			const expected: TOKEN[] = [TKN_PREN_CLS];
+			const actual: TOKEN[] = lexer(')');
+			expect(actual).to.eql(expected);
 		})
 	})
 	describe(`<`, function () {
 		it(`Should produce 'TKN_TREE_OPN'`, function () {
-			expect(lexer('<')).to.eql([TKN_TREE_OPN]);
+			const expected: TOKEN[] = [TKN_TREE_OPN];
+			const actual: TOKEN[] = lexer('<');
+			expect(actual).to.eql(expected);
 		})
 	})
 	describe(`>`, function () {
 		it(`Should produce 'TKN_TREE_CLS'`, function () {
-			expect(lexer('>')).to.eql([TKN_TREE_CLS]);
+			const expected: TOKEN[] = [TKN_TREE_CLS];
+			const actual: TOKEN[] = lexer('>');
+			expect(actual).to.eql(expected);
 		})
 	})
 });
@@ -80,17 +100,15 @@ describe('Lexer (whitespace)', function () {
 	describe(`'    '`, function () {
 		it('should produce an empty list', function () {
 			const actual: TOKEN[] = lexer('    ');
-			expect(actual).to.eql(
-				[]
-			);
+			const expected: TOKEN[] = []
+			expect(actual).to.eql(expected);
 		});
 	});
 	describe(`'    nil    '`, function () {
 		it(`should produce the 'nil' token`, function () {
 			const actual: TOKEN[] = lexer('    nil    ');
-			expect(actual).to.eql(
-				['nil']
-			);
+			const expected: TOKEN[] = ['nil']
+			expect(actual).to.eql(expected);
 		});
 	});
 });
@@ -99,33 +117,29 @@ describe('Lexer (tokens)', function () {
 	describe(`'nil'`, function () {
 		it(`should produce the token`, function () {
 			const actual: TOKEN[] = lexer('nil');
-			expect(actual).to.eql(
-				['nil']
-			);
+			const expected: TOKEN[] = ['nil']
+			expect(actual).to.eql(expected);
 		});
 	});
 	describe(`'mytoken'`, function () {
 		it(`should produce the token`, function () {
 			const actual: TOKEN[] = lexer('mytoken');
-			expect(actual).to.eql(
-				['mytoken']
-			);
+			const expected: TOKEN[] = ['mytoken']
+			expect(actual).to.eql(expected);
 		});
 	});
 	describe(`'nilish'`, function () {
 		it(`should not split into two tokens`, function () {
 			const actual: TOKEN[] = lexer('nilish');
-			expect(actual).to.eql(
-				['nilish']
-			);
+			const expected: TOKEN[] = ['nilish']
+			expect(actual).to.eql(expected);
 		});
 	});
 	describe(`'my tokens'`, function () {
 		it(`should produce two separate tokens`, function () {
 			const actual: TOKEN[] = lexer('my token');
-			expect(actual).to.eql(
-				['my', 'token']
-			);
+			const expected: TOKEN[] = ['my', 'token']
+			expect(actual).to.eql(expected);
 		});
 	});
 });
@@ -134,25 +148,22 @@ describe('Lexer (trees)', function () {
 	describe(`'<nil.nil>'`, function () {
 		it('should produce a matching token list', function () {
 			const actual: TOKEN[] = lexer('<nil.nil>');
-			expect(actual).to.eql(
-				[TKN_TREE_OPN, 'nil', TKN_DOT, 'nil', TKN_TREE_CLS]
-			);
+			const expected: TOKEN[] = [TKN_TREE_OPN, 'nil', TKN_DOT, 'nil', TKN_TREE_CLS]
+			expect(actual).to.eql(expected);
 		});
 	});
 	describe(`'<<nil.nil>.nil>'`, function () {
 		it('should produce a matching token list', function () {
 			const actual: TOKEN[] = lexer('<<nil.nil>.nil>');
-			expect(actual).to.eql(
-				[TKN_TREE_OPN, TKN_TREE_OPN, 'nil', TKN_DOT, 'nil', TKN_TREE_CLS, TKN_DOT, 'nil', TKN_TREE_CLS]
-			);
+			const expected: TOKEN[] = [TKN_TREE_OPN, TKN_TREE_OPN, 'nil', TKN_DOT, 'nil', TKN_TREE_CLS, TKN_DOT, 'nil', TKN_TREE_CLS]
+			expect(actual).to.eql(expected);
 		});
 	});
 	describe(`'<nil.<nil.nil>>'`, function () {
 		it('should produce a matching token list', function () {
 			const actual: TOKEN[] = lexer('<nil.<nil.nil>>');
-			expect(actual).to.eql(
-				[TKN_TREE_OPN, 'nil', TKN_DOT, TKN_TREE_OPN, 'nil', TKN_DOT, 'nil', TKN_TREE_CLS, TKN_TREE_CLS]
-			);
+			const expected: TOKEN[] = [TKN_TREE_OPN, 'nil', TKN_DOT, TKN_TREE_OPN, 'nil', TKN_DOT, 'nil', TKN_TREE_CLS, TKN_TREE_CLS]
+			expect(actual).to.eql(expected);
 		});
 	});
 });
@@ -161,58 +172,51 @@ describe('Lexer (lists)', function () {
 	describe(`'int[]'`, function () {
 		it('should produce a matching token list', function () {
 			const actual: TOKEN[] = lexer('int[]');
-			expect(actual).to.eql(
-				['int', TKN_LIST_OPN, TKN_LIST_CLS]
-			);
+			const expected: TOKEN[] = ['int', TKN_LIST_OPN, TKN_LIST_CLS]
+			expect(actual).to.eql(expected);
 		});
 	});
 	describe(`'(int|any)[]'`, function () {
 		it('should produce a matching token list', function () {
 			const actual: TOKEN[] = lexer('(int|any)[]');
-			expect(actual).to.eql(
-				[TKN_PREN_OPN, 'int', TKN_BAR, 'any', TKN_PREN_CLS, TKN_LIST_OPN, TKN_LIST_CLS]
-			);
+			const expected: TOKEN[] = [TKN_PREN_OPN, 'int', TKN_BAR, 'any', TKN_PREN_CLS, TKN_LIST_OPN, TKN_LIST_CLS]
+			expect(actual).to.eql(expected);
 		});
 	});
 	describe(`'[int]'`, function () {
 		it('should produce a matching token list', function () {
 			const actual: TOKEN[] = lexer('[int]');
-			expect(actual).to.eql(
-				[TKN_LIST_OPN, 'int', TKN_LIST_CLS]
-			);
+			const expected: TOKEN[] = [TKN_LIST_OPN, 'int', TKN_LIST_CLS]
+			expect(actual).to.eql(expected);
 		});
 	});
 	describe(`'[int, int]'`, function () {
 		it('should produce a matching token list', function () {
 			const actual: TOKEN[] = lexer('[int, int]');
-			expect(actual).to.eql(
-				[TKN_LIST_OPN, 'int', TKN_COMMA, 'int', TKN_LIST_CLS]
-			);
+			const expected: TOKEN[] = [TKN_LIST_OPN, 'int', TKN_COMMA, 'int', TKN_LIST_CLS]
+			expect(actual).to.eql(expected);
 		});
 	});
 	describe(`'[int,any]'`, function () {
 		it('should produce a matching token list', function () {
 			const actual: TOKEN[] = lexer('[int,any]');
-			expect(actual).to.eql(
-				[TKN_LIST_OPN, 'int', TKN_COMMA, 'any', TKN_LIST_CLS]
-			);
+			const expected: TOKEN[] = [TKN_LIST_OPN, 'int', TKN_COMMA, 'any', TKN_LIST_CLS]
+			expect(actual).to.eql(expected);
 		});
 	});
 	describe(`'[int, any]'`, function () {
 		it('should produce a matching token list', function () {
 			const actual: TOKEN[] = lexer('[int, any]');
-			expect(actual).to.eql(
-				[TKN_LIST_OPN, 'int', TKN_COMMA, 'any', TKN_LIST_CLS]
-			);
+			const expected: TOKEN[] = [TKN_LIST_OPN, 'int', TKN_COMMA, 'any', TKN_LIST_CLS]
+			expect(actual).to.eql(expected);
 		});
 	});
 
 	describe(`'[any, any[]]'`, function () {
 		it('should produce a matching token list', function () {
 			const actual: TOKEN[] = lexer('[any, any[]]');
-			expect(actual).to.eql(
-				[TKN_LIST_OPN, 'any', TKN_COMMA, 'any', TKN_LIST_OPN, TKN_LIST_CLS, TKN_LIST_CLS]
-			);
+			const expected: TOKEN[] = [TKN_LIST_OPN, 'any', TKN_COMMA, 'any', TKN_LIST_OPN, TKN_LIST_CLS, TKN_LIST_CLS]
+			expect(actual).to.eql(expected);
 		});
 	});
 });
