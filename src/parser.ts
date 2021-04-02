@@ -3,7 +3,6 @@ import {
 	TKN_COMMA,
 	TKN_CTR,
 	TKN_DOT,
-	TKN_DOTS,
 	TKN_LIST_CLS,
 	TKN_LIST_OPN,
 	TKN_PREN_CLS,
@@ -177,7 +176,6 @@ function _readAtom(tokens: TOKEN[]) : string|ConversionTree {
 		case TKN_COMMA:
 		case TKN_CTR:
 		case TKN_DOT:
-		case TKN_DOTS:
 		case TKN_LIST_CLS:
 		case TKN_PREN_CLS:
 		case TKN_TREE_CLS:

@@ -5,7 +5,6 @@ import lexer, {
 	TKN_COMMA,
 	TKN_CTR,
 	TKN_DOT,
-	TKN_DOTS,
 	TKN_LIST_CLS,
 	TKN_LIST_OPN,
 	TKN_PREN_CLS,
@@ -34,11 +33,6 @@ describe('Lexer (symbols)', function () {
 	describe(`${TKN_DOT}`, function () {
 		it(`Should produce 'TKN_DOT'`, function () {
 			expect(lexer('.')).to.eql([TKN_DOT]);
-		})
-	})
-	describe(`${TKN_DOTS}`, function () {
-		it(`Should produce 'TKN_DOTS'`, function () {
-			expect(lexer('...')).to.eql([TKN_DOTS]);
 		})
 	})
 
@@ -218,30 +212,6 @@ describe('Lexer (lists)', function () {
 			const actual: TOKEN[] = lexer('[any, any[]]');
 			expect(actual).to.eql(
 				[TKN_LIST_OPN, 'any', TKN_COMMA, 'any', TKN_LIST_OPN, TKN_LIST_CLS, TKN_LIST_CLS]
-			);
-		});
-	});
-	describe(`'[any, ...]'`, function () {
-		it('should produce a matching token list', function () {
-			const actual: TOKEN[] = lexer('[any, ...]');
-			expect(actual).to.eql(
-				[TKN_LIST_OPN, 'any', TKN_COMMA, TKN_DOTS, TKN_LIST_CLS]
-			);
-		});
-	});
-	describe(`'[..., any]'`, function () {
-		it('should produce a matching token list', function () {
-			const actual: TOKEN[] = lexer('[..., any]');
-			expect(actual).to.eql(
-				[TKN_LIST_OPN, TKN_DOTS, TKN_COMMA, 'any', TKN_LIST_CLS]
-			);
-		});
-	});
-	describe(`'[...]'`, function () {
-		it('should produce a matching token list', function () {
-			const actual: TOKEN[] = lexer('[...]');
-			expect(actual).to.eql(
-				[TKN_LIST_OPN, TKN_DOTS, TKN_LIST_CLS]
 			);
 		});
 	});

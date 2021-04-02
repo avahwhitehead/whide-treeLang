@@ -5,7 +5,6 @@ import lexer, {
 	TKN_BAR,
 	TKN_COMMA,
 	TKN_DOT,
-	TKN_DOTS,
 	TKN_LIST_CLS,
 	TKN_LIST_OPN,
 	TKN_PREN_CLS,
@@ -437,7 +436,7 @@ describe(`#parser (invalid)`, function () {
 		}
 	});
 	describe(`Unexpected tokens`, function () {
-		for (let token of [TKN_BAR, TKN_COMMA, TKN_DOT, TKN_DOTS, TKN_LIST_CLS, TKN_PREN_CLS, TKN_TREE_CLS]) {
+		for (let token of [TKN_BAR, TKN_COMMA, TKN_DOT, TKN_LIST_CLS, TKN_PREN_CLS, TKN_TREE_CLS]) {
 			describe(`'${token}'`, function () {
 				it(`should throw an unexpected token error`, function () {
 					expect(
