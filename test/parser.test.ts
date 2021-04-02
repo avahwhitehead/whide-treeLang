@@ -1,7 +1,18 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
 import parse, { ConversionTree } from "../src/parser";
-import lexer, { TKN_LIST_OPN, TKN_PREN_OPN, TKN_TREE_OPN } from "../src/lexer";
+import lexer, {
+	TKN_BAR,
+	TKN_COMMA,
+	TKN_DOT,
+	TKN_DOTS,
+	TKN_LIST_CLS,
+	TKN_LIST_OPN,
+	TKN_PREN_CLS,
+	TKN_PREN_OPN,
+	TKN_TREE_CLS,
+	TKN_TREE_OPN,
+} from "../src/lexer";
 
 describe(`#parser (valid)`, function () {
 	describe('any', function () {
@@ -301,5 +312,30 @@ describe(`#parser (valid)`, function () {
 //TODO: [nil,nil][]
 
 describe(`#parser (invalid)`, function () {
-
+	describe(`Unmatched tokens`, function () {
+		for (let token of [TKN_LIST_OPN, TKN_PREN_OPN, TKN_TREE_OPN]) {
+			describe(`'${token}'`, function () {
+				it(`should throw an unexpected EOI error`, function () {
+					expect(
+						() => parse([token])
+					).to.throw(
+						`Unexpected end of input`
+					);
+				});
+			});
+		}
+	});
+	describe(`Unexpected tokens`, function () {
+		for (let token of [TKN_BAR, TKN_COMMA, TKN_DOT, TKN_DOTS, TKN_LIST_CLS, TKN_PREN_CLS, TKN_TREE_CLS]) {
+			describe(`'${token}'`, function () {
+				it(`should throw an unexpected token error`, function () {
+					expect(
+						() => parse([token])
+					).to.throw(
+						`Unexpected token: '${token}'`
+					);
+				});
+			});
+		}
+	});
 });
