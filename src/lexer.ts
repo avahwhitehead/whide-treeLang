@@ -1,9 +1,10 @@
 import LexerException from "./exceptions/LexerException";
 
-type SYMBOL_TOKEN = '<' | '>' | '[' | ']' | '(' | ')' | '|' | '.' | ',' | ':';
+type SYMBOL_TOKEN = '<' | '>' | '[' | ']' | '(' | ')' | '|' | '.' | '...' | ',' | ':';
 
 //Symbols
 export const TKN_DOT: SYMBOL_TOKEN = '.';
+export const TKN_DOTS: SYMBOL_TOKEN = '...';
 export const TKN_BAR: SYMBOL_TOKEN = '|';
 export const TKN_COMMA: SYMBOL_TOKEN = ',';
 export const TKN_CTR: SYMBOL_TOKEN = ':';
@@ -14,7 +15,8 @@ export const TKN_LIST_CLS: SYMBOL_TOKEN = ']';
 export const TKN_PREN_OPN: SYMBOL_TOKEN = '(';
 export const TKN_PREN_CLS: SYMBOL_TOKEN = ')';
 const SYMBOL_LIST = [
-	TKN_CTR, TKN_DOT,
+	TKN_DOTS, TKN_DOT,
+	TKN_CTR,
 	TKN_COMMA, TKN_BAR,
 	TKN_TREE_OPN, TKN_TREE_CLS,
 	TKN_LIST_OPN, TKN_LIST_CLS,

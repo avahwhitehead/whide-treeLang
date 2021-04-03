@@ -419,6 +419,3 @@ describe(`#runConvert`, function () {
 		]
 	);
 });
-
-//TODO: Should [1,2,3] match with [int,int]?
-//TODO: Perhaps should add back [int, int, ...]

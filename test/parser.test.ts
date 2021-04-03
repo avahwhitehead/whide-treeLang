@@ -377,6 +377,22 @@ describe(`#parser (valid)`, function () {
 				).to.eql(expected);
 			});
 		});
+		describe(`'[nil,...]'`, function () {
+			it('should match ', function () {
+				let tokens = lexer('[nil,...]');
+				const expected: ConversionTree = {
+					category: 'tree',
+					left: nil,
+					right: {
+						category: "choice",
+						type: ['any']
+					},
+				};
+				expect(
+					parse(tokens)
+				).to.eql(expected);
+			});
+		});
 		describe(`'[nil,any]'`, function () {
 			it('should match ', function () {
 				let tokens = lexer('[nil,any]');

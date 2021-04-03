@@ -2,7 +2,7 @@ import {
 	TKN_BAR,
 	TKN_COMMA,
 	TKN_CTR,
-	TKN_DOT,
+	TKN_DOT, TKN_DOTS,
 	TKN_LIST_CLS,
 	TKN_LIST_OPN,
 	TKN_PREN_CLS,
@@ -132,6 +132,20 @@ function _expect(tokens: TOKEN[], ...expected: TOKEN[]): TOKEN {
  * @param tokens	The token list
  */
 function _interpretListInternal(tokens: TOKEN[]): ConversionTree {
+	//Check if the next element says to ignore the rest of the list
+	if (tokens[0] === TKN_DOTS) {
+		//Remove the dots
+		tokens.shift();
+		//This should be the last element before the end fof the list
+		_expect(tokens, TKN_LIST_CLS);
+		//Allow any node here - only limit is that the rightmost leaf node is `nil`
+		//Which is a guaranteed quality of the binary tree
+		return {
+			category: 'choice',
+			type: ['any'],
+		};
+	}
+
 	//Parse the first element of the list
 	let left: ConversionTree = _readAllAtoms(tokens);
 	//The next token should either be a comma, or list closing token
@@ -176,6 +190,7 @@ function _readAtom(tokens: TOKEN[]) : string|ConversionTree {
 		case TKN_COMMA:
 		case TKN_CTR:
 		case TKN_DOT:
+		case TKN_DOTS:
 		case TKN_LIST_CLS:
 		case TKN_PREN_CLS:
 		case TKN_TREE_CLS:
