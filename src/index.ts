@@ -3,10 +3,12 @@ import { BinaryTree, ConvertedBinaryTree } from "./types/Trees";
 import lexer, { TOKEN } from "./lexer";
 import parser, { ConversionTree } from "./parser";
 
+export { BinaryTree, ConvertedBinaryTree } from "./types/Trees";
+
 /**
  * Represents the result of a tree conversion.
  */
-type ConversionResultType = {
+export type ConversionResultType = {
 	/**
 	 * The result of the conversion
 	 */
