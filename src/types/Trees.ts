@@ -3,10 +3,10 @@ export type BinaryTree = {
 	right: BinaryTree,
 }|null;
 
-export type ConvertedBinaryTree = {
-	left: ConvertedBinaryTree,
-	right: ConvertedBinaryTree,
-}|{
-	expected: string,
-	actual: BinaryTree,
-}|null|number|string|ConvertedBinaryTree[];
+export type ConvertedBinaryTree =
+	{
+		error?: string,
+		left?: ConvertedBinaryTree|BinaryTree,
+		right?: ConvertedBinaryTree|BinaryTree,
+		value?: string|number|null,
+	};
