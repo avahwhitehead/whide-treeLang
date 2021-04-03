@@ -1,11 +1,10 @@
-import lexer, {
-	TKN_DOT,
-	TKN_TREE_CLS,
-	TKN_TREE_OPN,
-	TOKEN
-} from "./lexer";
-import { BinaryTree, ConvertedBinaryTree } from "./types/Trees";
-import ParserException from "./exceptions/ParserException";
+import { BinaryTree } from "./types/Trees";
+import { ConversionTree, ChoiceType, ListType, TreeType } from "./parser";
+import ConverterException from "./exceptions/ConverterException";
+
+//========
+// Utils
+//========
 
 /**
  * Convert a tree to a number.
@@ -20,93 +19,108 @@ function _readNumber(tree: BinaryTree, cur = 0): number|undefined {
 	return _readNumber(tree.right, cur + 1);
 }
 
-/**
- * Convert a tree to its final value based on an atom token
- * @param atom	The atom to use
- * @param tree	The tree to convert
- */
-function _matchAtom(atom: string, tree: BinaryTree): ConvertedBinaryTree {
-	if (atom === 'nil') {
-		//The tree has to be `null` to be valid
-		if (tree === null) return null;
-		return {
-			expected: `nil`,
-			actual: tree
-		};
-	} else if (atom === 'any') {
-		//Any value is valid here
-		return tree;
-	//TODO: Replace 'int' with a substitution (when custom atoms/counters are supported) of '<nil:count:.int>|nil'
-	} else if (atom === 'int') {
-		//Try to convert the tree to a number
-		let num = _readNumber(tree);
-		if (num !== undefined) return num;
-		//Invalid value
-		return {
-			expected: `int`,
-			actual: tree,
-		}
-	}
-	//Error on unknown atoms
-	throw new ParserException(`Unknown atom '${atom}'`);
-}
+//========
+// AtomTypes
+//========
 
 /**
- * Match the binary tree against an explicit tree in the conversion string
- * @param tree		The binary tree to convert
- * @param tokens	Token list representing the conversion string
+ * Check a tree against an atom string (e.g. 'nil'/'any'/'int')
+ * @param tree	The tree to check
+ * @param atom	The atomic string to check against
  */
-function _matchTree(tree: BinaryTree, tokens: TOKEN[]): ConvertedBinaryTree {
-	if (tree == null) {
-		return {
-			//TODO: Display actual value here instead of "tree"
-			expected: 'tree',
-			actual: tree
-		}
-	}
-
-	//Left side of the tree
-	let left = _convert(tree.left, tokens);
-
-	//Dot
-	let dot = tokens.shift();
-	if (dot !== TKN_DOT) throw new ParserException(`SyntaxError: Expected '${TKN_DOT}' but got '${dot}'`);
-
-	//Right side of the tree
-	let right = _convert(tree.right, tokens);
-
-	let close = tokens.shift();
-	if (close !== TKN_TREE_CLS) throw new ParserException(`SyntaxError: Expected '${TKN_TREE_CLS}' but got '${dot}'`);
-
-	//Return the created tree
-	return {
-		left,
-		right
-	};
-}
-
-function _convert(tree: BinaryTree, tokens: TOKEN[]): ConvertedBinaryTree {
-	let next = tokens.shift();
-	if (!next) throw new ParserException(`Unexpected end of string`);
-
-	if (next === TKN_TREE_OPN) {
-		//The token is the start of a tree node
-		return _matchTree(tree, tokens);
-	} else {
-		//Assume anything else is an atom
-		return _matchAtom(next, tree);
+function _convertAtom(tree: BinaryTree, atom: string): boolean {
+	//Built-in types
+	switch (atom) {
+		case 'nil':
+			//The tree node must be null
+			return tree === null;
+		case 'any':
+			//Any tree is valid
+			return true;
+		case 'int':
+			//Only numbers are valid
+			return (_readNumber(tree) !== undefined);
+		default:
+			//Can't check against unknown types
+			return false;
 	}
 }
 
+//========
+// Converters
+//========
+
 /**
- * Convert a binary tree from a tree to a number
- * @param tree	The tree to interpret
- * @param str	The conversion string
+ * Check the tree against a conversion tree 'choice' node
+ * @param tree				The tree to check
+ * @param conversionTree	The conversion tree node
  */
-export default function runConvert(tree: BinaryTree, str: string) : ConvertedBinaryTree {
-	//Lex the input
-	let tokens = lexer(str);
-	//Treat empty input as 'any'
-	if (tokens === []) return tree;
-	return _convert(tree, tokens);
+function _convertChoice(tree: BinaryTree, conversionTree: ChoiceType): boolean {
+	for (let type of conversionTree.type) {
+		let res: boolean;
+
+		if (typeof type === "string") res = _convertAtom(tree, type);
+		else res = _convert(tree, type);
+
+		if (res) return true;
+	}
+	return false;
+}
+
+/**
+ * Check the tree against a conversion tree 'tree' node
+ * @param tree				The tree to check
+ * @param conversionTree	The conversion tree node
+ */
+function _convertTree(tree: BinaryTree, conversionTree: TreeType): boolean {
+	//An empty tree can't match a TreeType node
+	if (tree == null) return false;
+	//Check the left and right sides match
+	return _convert(tree.left, conversionTree.left) && _convert(tree.right, conversionTree.right)
+}
+
+/**
+ * Check the tree against a conversion tree 'list' node
+ * @param tree				The tree to check
+ * @param conversionTree	The conversion tree node
+ */
+function _convertList(tree: BinaryTree, conversionTree: ListType): boolean {
+	//Null trees match with empty lists
+	if (tree === null) return true;
+	//Check the left node matches with the acceptable types
+	//Check the right node is a list of this same type
+	return _convert(tree.left, conversionTree.type) && _convertList(tree.right, conversionTree);
+}
+
+//========
+// General
+//========
+
+/**
+ * Read the type of the conversion tree's root node, and convert the tree accordingly
+ * @param tree				The tree to check
+ * @param conversionTree	The conversion tree node
+ */
+function _convert(tree: BinaryTree, conversionTree: ConversionTree): boolean {
+	const category = conversionTree.category;
+	switch (category) {
+		case "choice":
+			return _convertChoice(tree, (conversionTree as ChoiceType));
+		case "list":
+			return _convertList(tree, (conversionTree as ListType));
+		case "tree":
+			return _convertTree(tree, (conversionTree as TreeType));
+		default:
+			throw new ConverterException(`Unknown branch type: '${category}'`);
+	}
+}
+
+/**
+ * Match a binary tree against a given conversion tree
+ * @param tree				The tree to convert
+ * @param conversionTree	The conversion tree to use (should be generated by the `parser`)
+ */
+export default function runConvert(tree: BinaryTree, conversionTree: ConversionTree) : boolean {
+	//TODO: Return a proper match tree, not a boolean
+	return _convert(tree, conversionTree);
 }
