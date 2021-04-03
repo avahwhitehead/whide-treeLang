@@ -68,6 +68,34 @@ describe(`#parser (valid)`, function () {
 		});
 	});
 
+	describe('(int|any)|any', function () {
+		it('should produce the same result as having no brackets', function () {
+			let str = '(int|any)|any';
+			let tokens = lexer(str);
+			const expected: ConversionTree = {
+				category: 'choice',
+				type: ['int', 'any', 'any'],
+			};
+			expect(
+				parse(tokens)
+			).to.eql(expected);
+		});
+	});
+
+	describe('int|(any|any)', function () {
+		it('should produce the same result as having no brackets', function () {
+			let str = 'int|(any|any)';
+			let tokens = lexer(str);
+			const expected: ConversionTree = {
+				category: 'choice',
+				type: ['int', 'any', 'any'],
+			};
+			expect(
+				parse(tokens)
+			).to.eql(expected);
+		});
+	});
+
 	describe('any|any', function () {
 		it(`shouldn't remove duplicate types`, function () {
 			let str = 'any|any';
@@ -415,9 +443,6 @@ describe(`#parser (valid)`, function () {
 	});
 });
 
-//TODO: (int|any)|any
-//TODO: int|(any|any)
-//TODO: (int|any|any)
 //TODO: Counters
 //TODO: Stacked Counters `nil:ctr1::ctr2:`
 
