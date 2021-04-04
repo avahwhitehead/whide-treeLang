@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.1](https://github.com/sonrad10/whide-treeLang/compare/v1.2.0...v1.2.1) (2021-04-04)
+
+
+### Bug Fixes
+
+* fixed wrong source path ([b061b7d](https://github.com/sonrad10/whide-treeLang/commit/b061b7dd94cc6c0fb3d2a1556b183e1169e88937))
+
 ## [1.2.0](https://github.com/sonrad10/whide-treeLang/compare/v1.1.1...v1.2.0) (2021-04-04)
 
 
