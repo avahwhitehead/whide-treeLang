@@ -85,6 +85,11 @@ const EXPECTED_NUMBER = `Not a valid number`;
 const EXPECTED_TREE = `Expected a tree, got nil`;
 const UNKNOWN_TYPE = `Unknown type 'unknown'`;
 
+//Other definitions
+const LIST_EMPTY = cv('[]');
+const LIST_TERM = cv('END');
+
+//Tests start
 describe(`#runConvert`, function () {
 	_runAllTests(
 		'any',
@@ -246,7 +251,7 @@ describe(`#runConvert`, function () {
 			[
 				null,
 				{
-					tree: cv(null),
+					tree: LIST_EMPTY,
 					error: false,
 				},
 				'should match []'
@@ -254,7 +259,7 @@ describe(`#runConvert`, function () {
 			[
 				t(null, null),
 				{
-					tree: ct(0, null),
+					tree: ct(0, LIST_TERM),
 					error: false,
 				},
 				'should match [0]'
@@ -262,7 +267,7 @@ describe(`#runConvert`, function () {
 			[
 				t(null, t(null, null)),
 				{
-					tree: ct(0, ct(0, null)),
+					tree: ct(0, ct(0, LIST_TERM)),
 					error: false,
 				},
 				'should match [0,0]'
@@ -270,7 +275,7 @@ describe(`#runConvert`, function () {
 			[
 				t(t(null, t(null, null)), t(null, null)),
 				{
-					tree: ct(2, ct(0, null)),
+					tree: ct(2, ct(0, LIST_TERM)),
 					error: false,
 				},
 				'should match [2,0]'
@@ -278,7 +283,7 @@ describe(`#runConvert`, function () {
 			[
 				t(t(t(null, null), null), t(null, null)),
 				{
-					tree: ct(ct(ct(null, null), null, EXPECTED_NUMBER), ct(0, null)),
+					tree: ct(ct(ct(null, null), null, EXPECTED_NUMBER), ct(0, LIST_TERM)),
 					error: true,
 				},
 				'should fail with [E,0]'
@@ -292,7 +297,7 @@ describe(`#runConvert`, function () {
 			[
 				null,
 				{
-					tree: cv(null),
+					tree: LIST_EMPTY,
 					error: false,
 				},
 				'should match []'
@@ -300,7 +305,7 @@ describe(`#runConvert`, function () {
 			[
 				t(null, null),
 				{
-					tree: ct(0, null),
+					tree: ct(0, LIST_TERM),
 					error: false,
 				},
 				'should match [0]'
@@ -308,7 +313,7 @@ describe(`#runConvert`, function () {
 			[
 				t(null, t(null, null)),
 				{
-					tree: ct(0, ct(0, null)),
+					tree: ct(0, ct(0, LIST_TERM)),
 					error: false,
 				},
 				'should match [0,0]'
@@ -316,7 +321,7 @@ describe(`#runConvert`, function () {
 			[
 				t(t(null, t(null, null)), t(null, null)),
 				{
-					tree: ct(2, ct(0, null)),
+					tree: ct(2, ct(0, LIST_TERM)),
 					error: false,
 				},
 				'should match [2,0]'
@@ -324,7 +329,7 @@ describe(`#runConvert`, function () {
 			[
 				t(t(t(null, null), null), t(null, null)),
 				{
-					tree: ct(ct(ct(null, null), null), ct(0, null)),
+					tree: ct(ct(ct(null, null), null), ct(0, LIST_TERM)),
 					error: false,
 				},
 				'should match with [<<nil.nil>.nil>,0]'
@@ -384,7 +389,7 @@ describe(`#runConvert`, function () {
 			[
 				null,
 				{
-					tree: cv(null),
+					tree: LIST_EMPTY,
 					error: false,
 				},
 				'should match []'
@@ -392,7 +397,7 @@ describe(`#runConvert`, function () {
 			[
 				t(null, null),
 				{
-					tree: ct(cv(null, UNKNOWN_TYPE), null),
+					tree: ct(cv(null, UNKNOWN_TYPE), LIST_TERM),
 					error: true,
 				},
 				'should fail with an unknown atom'
@@ -400,7 +405,7 @@ describe(`#runConvert`, function () {
 			[
 				t(null, t(null, null)),
 				{
-					tree: ct(cv(null, UNKNOWN_TYPE), ct(cv(null, UNKNOWN_TYPE), null)),
+					tree: ct(cv(null, UNKNOWN_TYPE), ct(cv(null, UNKNOWN_TYPE), LIST_TERM)),
 					error: true,
 				},
 				'should fail with an unknown atom'
@@ -410,7 +415,7 @@ describe(`#runConvert`, function () {
 				{
 					tree: ct(
 						ct(null, ct(null, null), UNKNOWN_TYPE),
-						ct(cv(null, UNKNOWN_TYPE), null)
+						ct(cv(null, UNKNOWN_TYPE), LIST_TERM)
 					),
 					error: true,
 				},

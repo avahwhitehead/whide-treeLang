@@ -166,16 +166,21 @@ function _convertTree(tree: BinaryTree, conversionTree: TreeType): ConversionRes
  * Convert the tree using a conversion tree 'list' node
  * @param tree				The tree to check
  * @param conversionTree	The conversion tree node
+ * @param isEmpty			(INTERNAL - LEAVE DEFAULT)
+ * 							Only used by recursive calls to determine whether the list has at least 1 element
  */
-function _convertList(tree: BinaryTree, conversionTree: ListType): ConversionResult {
+function _convertList(tree: BinaryTree, conversionTree: ListType, isEmpty = true): ConversionResult {
 	//Null trees match with empty lists
-	if (tree === null) return _treeToConversionResult(tree);
+	if (tree === null) {
+		if (isEmpty) return _valueToConversionResult('[]');
+		return _valueToConversionResult('END');
+	}
 	//Convert the left and right nodes
 	return _parentConversionResult(
 		//Left node must match with the acceptable types
 		_convert(tree.left, conversionTree.type),
 		//Right node must be a list of the same type
-		_convertList(tree.right, conversionTree),
+		_convertList(tree.right, conversionTree, false),
 	);
 }
 
