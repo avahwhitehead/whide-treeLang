@@ -2,8 +2,8 @@
   "name": "@whide/tree-lang",
   "version": "1.2.1",
   "description": "Library module for the Whide editor's tree language",
-  "main": "lib/index.ts",
-  "module": "lib/index.ts",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
   "type": "module",
   "files": [
     "lib/"
