@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/sonrad10/whide-treeLang/compare/v1.1.1...v1.2.0) (2021-04-04)
+
+
+### Features
+
+* added value `[]` to the parent list element node ([fa9bd7a](https://github.com/sonrad10/whide-treeLang/commit/fa9bd7ae096895369f290c3a7ae254fd3e228797))
+* made empty list nodes and terminators display not as nil ([3d7f65f](https://github.com/sonrad10/whide-treeLang/commit/3d7f65f98365d6431d3b8c7f21bdb342ae57827d))
+
 ### [1.1.1](https://github.com/sonrad10/whide-treeLang/compare/v1.1.0...v1.1.1) (2021-04-03)
 
 
