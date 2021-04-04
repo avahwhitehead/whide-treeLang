@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { describe, it } from "mocha";
 import runConvert, { ConversionResult } from "../src/converter";
 import parse, { ConversionTree } from "../src/parser";
-import { BinaryTree, ConvertedBinaryTree } from "../src/types/Trees";
+import { BinaryTree, ConvertedBinaryTree } from "../src";
 import lexer from "../src/lexer";
 
 /**
@@ -55,22 +55,39 @@ function ct(l: string|number|null|ConvertedBinaryTree, r: string|number|null|Con
 	if (r === null) r = cv(null);
 	if (typeof l === 'number' || typeof l === 'string') l = cv(l);
 	if (typeof r === 'number' || typeof r === 'string') r = cv(r);
-	return { left: l, right: r, error };
+	return { children: [l, r], error };
 }
 
-function _runTest(converter: ConversionTree, tree: BinaryTree, expectedValue: any, its = '') {
+/**
+ *
+ * @param elements
+ */
+function a(...elements: (ConvertedBinaryTree|string|number|null)[]): ConvertedBinaryTree {
+	const standardisedElements = elements.map((e) => {
+		if (e === null) return cv(null);
+		if (typeof e === 'number' || typeof e === 'string') return cv(e);
+		return e;
+	});
+	return {
+		children: standardisedElements,
+		value: EMPTY_LIST_STR,
+		list: true,
+	}
+}
+
+function _runTest(converter: ConversionTree, tree: BinaryTree, expectedValue: ConversionResult|(() => ConversionResult), its = '') {
 	describe(treeToString(tree), function () {
 		it(its, function () {
-			expect(
-				runConvert(tree, converter)
-			).to.eql(
-				expectedValue
-			);
+			const actual = runConvert(tree, converter);
+			let expected;
+			if (typeof expectedValue === "function") expected = expectedValue();
+			else expected = expectedValue;
+			expect(actual).to.deep.equal(expected);
 		});
 	});
 }
 
-function _runAllTests(converter: string, tests: [BinaryTree, ConversionResult, string?][]) {
+function _runAllTests(converter: string, tests: [BinaryTree, ConversionResult|(() => ConversionResult), string?][]) {
 	let conversionTree: ConversionTree = parse(lexer(converter));
 	describe(`Converter: ${converter}`, function () {
 		for (let [tree, expected, its] of tests) {
@@ -85,6 +102,11 @@ const EXPECTED_NUMBER = `Not a valid number`;
 const EXPECTED_TREE = `Expected a tree, got nil`;
 const UNKNOWN_TYPE = `Unknown type 'unknown'`;
 
+//Other definitions
+const EMPTY_LIST_STR = '[]';
+// const LIST_TERM = cv('END');
+
+//Tests start
 describe(`#runConvert`, function () {
 	_runAllTests(
 		'any',
@@ -246,7 +268,7 @@ describe(`#runConvert`, function () {
 			[
 				null,
 				{
-					tree: cv(null),
+					tree: a(),
 					error: false,
 				},
 				'should match []'
@@ -254,7 +276,7 @@ describe(`#runConvert`, function () {
 			[
 				t(null, null),
 				{
-					tree: ct(0, null),
+					tree: a(0),
 					error: false,
 				},
 				'should match [0]'
@@ -262,7 +284,7 @@ describe(`#runConvert`, function () {
 			[
 				t(null, t(null, null)),
 				{
-					tree: ct(0, ct(0, null)),
+					tree: a(0, 0),
 					error: false,
 				},
 				'should match [0,0]'
@@ -270,7 +292,7 @@ describe(`#runConvert`, function () {
 			[
 				t(t(null, t(null, null)), t(null, null)),
 				{
-					tree: ct(2, ct(0, null)),
+					tree: a(2, 0),
 					error: false,
 				},
 				'should match [2,0]'
@@ -278,7 +300,7 @@ describe(`#runConvert`, function () {
 			[
 				t(t(t(null, null), null), t(null, null)),
 				{
-					tree: ct(ct(ct(null, null), null, EXPECTED_NUMBER), ct(0, null)),
+					tree: a(ct(ct(null, null), null, EXPECTED_NUMBER),0),
 					error: true,
 				},
 				'should fail with [E,0]'
@@ -292,7 +314,7 @@ describe(`#runConvert`, function () {
 			[
 				null,
 				{
-					tree: cv(null),
+					tree: a(),
 					error: false,
 				},
 				'should match []'
@@ -300,7 +322,7 @@ describe(`#runConvert`, function () {
 			[
 				t(null, null),
 				{
-					tree: ct(0, null),
+					tree: a(0),
 					error: false,
 				},
 				'should match [0]'
@@ -308,7 +330,7 @@ describe(`#runConvert`, function () {
 			[
 				t(null, t(null, null)),
 				{
-					tree: ct(0, ct(0, null)),
+					tree: a(0, 0),
 					error: false,
 				},
 				'should match [0,0]'
@@ -316,7 +338,7 @@ describe(`#runConvert`, function () {
 			[
 				t(t(null, t(null, null)), t(null, null)),
 				{
-					tree: ct(2, ct(0, null)),
+					tree: a(2,0),
 					error: false,
 				},
 				'should match [2,0]'
@@ -324,7 +346,7 @@ describe(`#runConvert`, function () {
 			[
 				t(t(t(null, null), null), t(null, null)),
 				{
-					tree: ct(ct(ct(null, null), null), ct(0, null)),
+					tree: a(ct(ct(null, null), null), 0),
 					error: false,
 				},
 				'should match with [<<nil.nil>.nil>,0]'
@@ -384,7 +406,7 @@ describe(`#runConvert`, function () {
 			[
 				null,
 				{
-					tree: cv(null),
+					tree: a(),
 					error: false,
 				},
 				'should match []'
@@ -392,7 +414,7 @@ describe(`#runConvert`, function () {
 			[
 				t(null, null),
 				{
-					tree: ct(cv(null, UNKNOWN_TYPE), null),
+					tree: a(cv(null, UNKNOWN_TYPE)),
 					error: true,
 				},
 				'should fail with an unknown atom'
@@ -400,7 +422,7 @@ describe(`#runConvert`, function () {
 			[
 				t(null, t(null, null)),
 				{
-					tree: ct(cv(null, UNKNOWN_TYPE), ct(cv(null, UNKNOWN_TYPE), null)),
+					tree: a(cv(null, UNKNOWN_TYPE), cv(null, UNKNOWN_TYPE)),
 					error: true,
 				},
 				'should fail with an unknown atom'
@@ -408,9 +430,9 @@ describe(`#runConvert`, function () {
 			[
 				t(t(null, t(null, null)), t(null, null)),
 				{
-					tree: ct(
+					tree: a(
 						ct(null, ct(null, null), UNKNOWN_TYPE),
-						ct(cv(null, UNKNOWN_TYPE), null)
+						cv(null, UNKNOWN_TYPE)
 					),
 					error: true,
 				},
