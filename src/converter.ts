@@ -34,8 +34,10 @@ function _treeToConverted(tree: BinaryTree, error?: string) : ConvertedBinaryTre
 	if (tree === null) {
 		res.value = tree;
 	} else {
-		res.left = _treeToConverted(tree.left);
-		res.right = _treeToConverted(tree.right);
+		res.children = [
+			_treeToConverted(tree.left),
+			_treeToConverted(tree.right),
+		];
 	}
 	return res;
 }
@@ -74,11 +76,42 @@ function _parentConversionResult(left: ConversionResult, right: ConversionResult
 	return {
 		tree: {
 			error,
-			left: left.tree,
-			right: right.tree
+			children: [left.tree, right.tree]
 		},
 		error: left.error || right.error || !!error,
 	};
+}
+
+//========
+//Internal converters
+//========
+
+/**
+ * Convert each element of a list using a conversion tree's 'list' node.
+ * @param tree				The tree to convert
+ * @param conversionTree	The conversion tree node
+ */
+function _convertListInternal(tree: BinaryTree, conversionTree: ListType): { children: ConvertedBinaryTree[], error?: boolean } {
+	//Null trees match with empty lists
+	if (tree === null) {
+		return {
+			children: [],
+		};
+	}
+	//Convert the head element
+	const head = _convert(tree.left, conversionTree.type);
+	//Convert the rest of the list
+	const tail = _convertListInternal(tree.right, conversionTree);
+
+	//Add each element to the child nodes of the resulting tree
+	let children = [head.tree];
+	for (let child of tail.children) children.push(child);
+
+	//Return the element(s)
+	return {
+		children,
+		error: head.error || tail.error
+	}
 }
 
 //========
@@ -166,22 +199,20 @@ function _convertTree(tree: BinaryTree, conversionTree: TreeType): ConversionRes
  * Convert the tree using a conversion tree 'list' node
  * @param tree				The tree to check
  * @param conversionTree	The conversion tree node
- * @param isEmpty			(INTERNAL - LEAVE DEFAULT)
- * 							Only used by recursive calls to determine whether the list has at least 1 element
  */
-function _convertList(tree: BinaryTree, conversionTree: ListType, isEmpty = true): ConversionResult {
-	//Null trees match with empty lists
-	if (tree === null) {
-		if (isEmpty) return _valueToConversionResult('[]');
-		return _valueToConversionResult('END');
+function _convertList(tree: BinaryTree, conversionTree: ListType): ConversionResult {
+	//Convert each element of the list
+	const res = _convertListInternal(tree, conversionTree);
+	//Wrap the elements in a tree strcuture
+	const children = res.children;
+	return {
+		error: res.error,
+		tree: {
+			children,
+			value: '[]',
+			list: true
+		}
 	}
-	//Convert the left and right nodes
-	return _parentConversionResult(
-		//Left node must match with the acceptable types
-		_convert(tree.left, conversionTree.type),
-		//Right node must be a list of the same type
-		_convertList(tree.right, conversionTree, false),
-	);
 }
 
 //========
