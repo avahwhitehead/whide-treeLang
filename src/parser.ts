@@ -96,8 +96,8 @@ function _addToChoice(parent: ChoiceType, child: string|ConversionTree) {
  */
 function _unexpectedToken(actual: string, ...expected: string[]): ParserException {
 	if (expected.length === 0) return new ParserException(`Unexpected token: '${actual}'`);
-	if (expected.length === 1) return new ParserException(`Unexpected token: got '${actual}' expected '${expected[0]}'`);
-	return new ParserException(`Unexpected token: got '${actual}' expected one of '${expected.join(`', '`)}'`);
+	if (expected.length === 1) return new ParserException(`Unexpected token: expected '${expected[0]}' got '${actual}'`);
+	return new ParserException(`Unexpected token: expected one of '${expected.join(`', '`)}' got '${actual}'`);
 }
 
 /**
