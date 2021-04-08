@@ -2,8 +2,11 @@ import runConvert from "./converter";
 import { BinaryTree, ConvertedBinaryTree } from "./types/Trees";
 import lexer, { TOKEN } from "./lexer";
 import parser, { ConversionTree } from "./parser";
+import stringify from "./stringify";
 
 export { BinaryTree, ConvertedBinaryTree } from "./types/Trees";
+
+export { stringify };
 
 /**
  * Represents the result of a tree conversion.

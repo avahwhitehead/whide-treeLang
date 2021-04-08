@@ -307,6 +307,7 @@ function _interpretTree(tokens: TOKEN[]): TreeType {
 function _interpretList(tokens: TOKEN[]): ConversionTree {
 	//Return a `nil` token if the list has no content
 	if (tokens[0] === TKN_LIST_CLS) {
+		tokens.shift();
 		return {
 			category: 'choice',
 			type: ['nil']
@@ -327,6 +328,9 @@ export default function parse(tokens: TOKEN[]) : ConversionTree {
 
 	//Parse the token list
 	let res: ConversionTree = _readAllAtoms(tokens);
+
+	//Error if there are any unparsed tokens left
+	if (tokens.length > 0) throw new ParserException(`Unexpected token: '${tokens[0]}'`);
 
 	//Unwrap the root node if it is a choice of only 1 option
 	if (res.category === 'choice' && res.type.length === 1) {
