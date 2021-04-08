@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.3](https://github.com/sonrad10/whide-treeLang/compare/v1.2.2...v1.2.3) (2021-04-08)
+
+
+### Bug Fixes
+
+* added missing parser tests for invalid token lists ([605e0ef](https://github.com/sonrad10/whide-treeLang/commit/605e0ef1ed99909eb7e4748569f3865f2671b89f))
+* improved unexpected token error message ([dc43c73](https://github.com/sonrad10/whide-treeLang/commit/dc43c73e3a972369658b821d2a7a09f1daaffa59))
+
 ### [1.2.2](https://github.com/sonrad10/whide-treeLang/compare/v1.2.1...v1.2.2) (2021-04-04)
 
 
