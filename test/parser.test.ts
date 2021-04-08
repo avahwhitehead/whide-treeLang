@@ -5,6 +5,7 @@ import lexer, {
 	TKN_BAR,
 	TKN_COMMA,
 	TKN_DOT,
+	TKN_DOTS,
 	TKN_LIST_CLS,
 	TKN_LIST_OPN,
 	TKN_PREN_CLS,
@@ -477,7 +478,7 @@ describe(`#parser (invalid)`, function () {
 		}
 	});
 	describe(`Unexpected tokens`, function () {
-		for (let token of [TKN_BAR, TKN_COMMA, TKN_DOT, TKN_LIST_CLS, TKN_PREN_CLS, TKN_TREE_CLS]) {
+		for (let token of [TKN_BAR, TKN_COMMA, TKN_DOT, TKN_DOTS, TKN_LIST_CLS, TKN_PREN_CLS, TKN_TREE_CLS]) {
 			describe(`'${token}'`, function () {
 				it(`should throw an unexpected token error`, function () {
 					expect(
@@ -488,5 +489,103 @@ describe(`#parser (invalid)`, function () {
 				});
 			});
 		}
+	});
+
+	describe(`Unmatched brackets`, function () {
+		describe(`'<nil.nil'`, function () {
+			it(`should throw an unexpected EOI error`, function () {
+				expect(
+					() => parse([TKN_TREE_OPN, 'nil', TKN_DOT, 'nil'])
+				).to.throw(
+						`Unexpected end of input`
+				);
+			});
+		});
+		describe(`'[nil,nil'`, function () {
+			it(`should throw an unexpected token error`, function () {
+				expect(
+					() => parse([TKN_LIST_OPN, 'nil', TKN_COMMA, 'nil'])
+				).to.throw(
+						`Unexpected end of input`
+				);
+			});
+		});
+		describe(`'<nil.nil>>'`, function () {
+			it(`should throw an unexpected token error`, function () {
+				expect(
+					() => parse([TKN_TREE_OPN, 'nil', TKN_DOT, 'nil', TKN_TREE_CLS, TKN_TREE_CLS])
+				).to.throw(
+					`Unexpected token: '>'`
+				);
+			});
+		});
+		describe(`'[nil,nil]]'`, function () {
+			it(`should throw an unexpected token error`, function () {
+				expect(
+					() => parse([TKN_LIST_OPN, 'nil', TKN_COMMA, 'nil', TKN_LIST_CLS, TKN_LIST_CLS])
+				).to.throw(
+					`Unexpected token: ']'`
+				);
+			});
+		});
+
+		describe(`'<nil.nil]'`, function () {
+			it(`should throw an unexpected token error`, function () {
+				expect(
+					() => parse([TKN_TREE_OPN, 'nil', TKN_DOT, TKN_LIST_CLS])
+				).to.throw(
+					`Unexpected token: ']'`
+				);
+			});
+		});
+
+		describe(`'[nil,nil>'`, function () {
+			it(`should throw an unexpected token error`, function () {
+				expect(
+					() => parse([TKN_LIST_OPN, 'nil', TKN_COMMA, 'nil', TKN_TREE_CLS])
+				).to.throw(
+					`Unexpected token: expected one of ',', ']' got '>'`
+				);
+			});
+		});
+	});
+
+	describe(`Invalid syntax`, function() {
+		describe(`'<nil>'`, function () {
+			it(`should throw an unexpected token error`, function () {
+				expect(
+					() => parse([TKN_TREE_OPN, 'nil', TKN_TREE_CLS])
+				).to.throw(
+					`Unexpected token: expected '.' got '>'`
+				);
+			});
+		});
+		describe(`'<nil.>'`, function () {
+			it(`should throw an unexpected token error`, function () {
+				expect(
+					() => parse([TKN_TREE_OPN, 'nil', TKN_DOT, TKN_TREE_CLS])
+				).to.throw(
+					`Unexpected token: '>'`
+				);
+			});
+		});
+		describe(`'[nil.nil]'`, function () {
+			it(`should throw an unexpected token error`, function () {
+				expect(
+					() => parse([TKN_LIST_OPN, 'nil', TKN_DOT, 'nil', TKN_LIST_CLS])
+				).to.throw(
+					`Unexpected token: expected one of ',', ']' got '.'`
+				);
+			});
+		});
+		describe(`'[nil...'`, function () {
+			it(`should throw an unexpected token error`, function () {
+				expect(
+					() => parse([TKN_LIST_OPN, 'nil', TKN_DOT, 'nil', TKN_DOTS])
+				).to.throw(
+					`Unexpected token: expected one of ',', ']' got '.'`
+				);
+			});
+		});
 	});
 });
