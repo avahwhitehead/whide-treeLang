@@ -1,4 +1,4 @@
-= HWhile Wrapper
+= Whide Tree Conversion Language
 Alaric Whitehead <aw548@sussex.ac.uk>, Supervisor: Dr Bernhard Reus <bernhard@sussex.ac.uk>
 1.0, 14 November, 2020
 :doctype: article
@@ -8,54 +8,199 @@ Alaric Whitehead <aw548@sussex.ac.uk>, Supervisor: Dr Bernhard Reus <bernhard@su
 :electron: https://www.electronjs.org/
 :mocha: https://www.npmjs.com/package/mocha
 :whide: https://github.com/sonrad10/Whide
+:typescript: https://www.typescriptlang.org/docs/handbook/2/everyday-types.html
+
+This repository holds the tree conversion language used by the link:{whide}[Whide IDE].
+//TODO: Link WHILE
+The purpose of this language is to validate the formats of link:[WHILE] binary trees, and to convert them to a more human-friendly representation.
+
+This language was loosely inspired by link:{typescript}[TypeScript's type declaration syntax];
+namely by its union operator (`|`), its `any` type, and its support of literal types.
+
+NOTE: The term "type" is used in this document to refer to any valid atom or structure in the expression language.
 
 [#language-description]
 == Language description
 
-//TODO: Cite typescript
-This language was loosely inspired by TypeScript's type declaration syntax.
-
-This language is less powerful than the converters, however it does not require any knowledge of JavaScript to use, it can be quickly written and adapted while the editor is running, and it supports the majority of use cases (trees, numbers, and lists and n-layered nested lists of numbers or trees).
-
-Here, the term "type" is used to refer to any valid atom or structure (defined below) in the expression language.
-
-//TODO: Convert this to a CFG
-
-Atoms:
-
-* `nil` accepts the `nil` literal exactly.
-* `false` = `nil`
-* `true` = `+<nil.nil>+`
-* `bool` = `true|false`
-* `int` = `nil|<nil.int>`
-* `any` accepts any tree in its place
-* `?` = `any`
-* Integers are all converted to their WHILE representations (e.g. `0` is `nil`, `1` is `+<nil.nil>+`, 2 is `+<nil.<nil.nil>>+`, etc)
-
-Users can also define their own type definitions in the Whide settings, which can be either used directly to interpret data, or as atomic types in other declarations.
-
-Atoms are also assigned numeric values *somehow*
-
-Structures:
-
-* `<L.R>` matches a tree where the left node matches the type `L`, and the right node matches the type `R`.
-* `T[]` matches a list of elements of type `T`
-* `(S|T)[]` matches a list of elements of a mixture of types `S` and `T`
-* `[S,T]` matches a list of 2 items, the first of type `S`, the second of type `T`
-* `[S,T,...,U,V]` matches a list of at least 4 items, the first of type `S`, the second of type `T`, and the final 2 of type `U` and `V` respectively.
-
-===== Examples
-
-* `int[]` converts any tree representing a list of integers to its list form.
-* `+<nil.nil>+` is `[0]`
-* `+<<nil.<nil.nil>>.<<nil.nil>.nil>>+` is `[2,1]`
-* `+nil+` is `[]`
-
-
-=== Treelang examples
+Formally, the language's syntax can be expressed as the following context-free grammar:
 
 [source]
 ----
-nil[]
+ROOT    = <ROOT.ROOT>       //Binary tree
+        | ROOT[]            //List of type ROOT
+        | [FIX_INT]         //List of a fixed structure
+        | (ROOT)            //Parentheses
+        | ROOT\|ROOT        //Accept any of these types
+        | ATOM              //Accept atomic values
 
+//Fixed structure list
+FIX_LST = []                //Empty list
+        | [FIX_INT]         //Populated list
+
+FIX_INT = ROOT,FIX_INT      //Comma separated list of types
+        | ROOT              //Final list element
+        | ...               //Ignore any further elements
+
+//Built-in atomic types
+ATOM    = nil               //The value `nil` exactly
+        | int               //Integer
+        | any               //Accept any type
 ----
+
+=== Informal Description
+
+==== Atoms
+
+The language contains several built-in atomic types.
+See <<data-structures>> for a description of the tree forms of these types.
+
+* `nil` matches the nil value
+* `any` matches any valid tree, and returns it unchanged
+* `int` matches any valid number, and converts it to its numerical representation.
+E.g:
+** `nil` becomes `0`
+** `<nil.nil>` becomes `1`
+** `<nil.<nil.nil>>` becomes `2`
+
+==== Alternative types
+
+Alternative types can be easily specified using the `|` operator;
+the string `A|B` first attempts to use type `A`, then type `B`.
+
+For example `int|any` first attempts to convert the tree to an integer, but returns the tree unchanged if it is invalid.
+
+==== Binary trees
+
+Binary trees are represented in the form `<L.R>` where `L` is the type of the left-hand node, and `R` is the type of the right-hand node.
+
+For example, `<int.nil>` matches any tree with an integer as the left child.
+
+==== Lists
+
+There are two supported types of list in the language; generic and fixed lists.
+
+Generic lists (`A[]` or `(A|B)[]`) represent arbitrary length lists of a fixed type.
+
+For example:
+* `A[]` represents a list where each element is of type `A`
+* `(A|B)[]` represents a list where each element is of type `A` or type `B`
+
+NOTE: `[]` binds more tightly than `|` so `A|B[]` would be equivalent to `A|(B[])`.
+
+Fixed structure lists match against lists which have a fixed length and each element has a known type:
+
+** `[]` represents the empty list.
+** `[A]` represents a list with exactly one element of type `A`.
+** `[A,B,C]` represents a list with exactly 3 elements of type `A`, `B`, and `C` respectively.
+** `[A,B,...]` represents a list with 2 or more elements, the first two of types `A` and `B` respectively, and any further elements of any type.
+
+NOTE: Any type can be turned into a generic list by adding `[]` to the end; `int[][]` would match a list of lists of integers, and `<int.int>[]` would match a list of trees of integers.
+
+=== Error handling
+
+If the provided tree does not match the conversion string, the converter returns the original tree in place of the mismatched token, with an error message describing the issue.
+
+For example, the tree `<<nil.nil>.nil>` with conversion string `int` would return the tree `<<nil.nil>.nil>` with the error "not a valid number".
+Similarly, conversion string `<any.nil>` acting on tree `nil` would return `nil` with the error message "expected a tree".
+
+If the error is non-recoverable (e.g. a syntax error) the converter throws an exception.
+
+== Examples
+
+[cols="25a,~a"]
+!====
+|Conversion String | Input tree
+
+| `int`
+| * `nil` -> 0
+* `+<nil.nil>+` -> 1
+* `+<nil.<nil.nil>>+` -> 2
+
+| `any`
+| * `nil` -> `nil`
+* `+<nil.nil>+` -> `+<nil.nil>+`
+* `+<<nil.nil>.<nil.nil>>+` -> `+<<nil.nil>.<nil.nil>>+`
+
+| `<int.any>`
+| * `nil` -> Invalid
+* `+<nil.nil>+` -> `+<0.nil>+`
+* `+<<nil.nil>.<nil.nil>>+` -> `+<1.<nil.nil>>+`
+
+| `int[]`
+| * `nil` -> `[]`
+* `+<nil.nil>+` -> `+[0]+`
+* `+<<nil.nil>.<nil.nil>>+` -> `+[1,0]+`
+
+| `int[][]`
+| * `nil` -> `[]`
+* `+<nil.nil>+` -> `+[]+`
+* `+<<nil.nil>.<nil.nil>>+` -> `+[[0],[]]+`
+!====
+
+== Stringify
+
+In addition to the conversion language, this module also provides a `stringify` method.
+This accepts a converted binary tree (the resulting type of the conversion) and converts it to a string representation.
+The format used by this method is similar to that used in this documentation:
+
+* `nil` nodes are shown as `nil`
+* Trees are shown as `<A.B.C...>` where `A`, `B`, and `C` are the stringified representations of each of the child nodes. In most cases there will be only 2 children.
+* Lists are shown as `[A,B,C,...]` where `A`, `B`, and `C` are the stringified lsit elements.
+* Numbers are shown as numbers (i.e. 1 is `1` etc)
+* Other strings are shown as-is, wrapped in "double quotes"
+
+[#data-structures]
+=== Data Structures
+
+Data structures are based on the types provided by Dr Bernhard Reus in his textbook link:[Limits of Computation].
+
+Lists are represented by a tree of depth N, where each "left" node at depth `n` represents the ``n``th element in the list, and the final right-node is null, acting as a terminator.
+//TODO: Represent a list in tree form in the conversion language
+
+Each integer `n` is represented as a list of ``nil``s of depth `n`.
+//TODO: Represent an integer in tree form in the conversion language
+
+[#io-types]
+=== Tree Input/Output Types
+
+The language accepts trees represented as objects in the following format.
+Nodes can be `null` (representing `nil`) or point to left and right nodes.
+
+[source]
+----
+type BinaryTree = {
+	left: BinaryTree,
+	right: BinaryTree,
+}|null;
+----
+
+The conversion produces a tree of type `ConvertedBinaryTree`.
+This tree is represented differently to the input type due to having a more flexible format.
+
+Every node may contain the following information:
+
+* A list of children (each a `ConvertedBinaryTree`)
++
+There may be more than 2 children to any given node
+* A string value describing the node
+* A boolean describing whether the node represents a list rather than a tree
+* A string containing an error message for the current node
+
+[source]
+----
+export type ConvertedBinaryTree = {
+    children?: ConvertedBinaryTree[],
+    value?: string|number|null,
+    list?: boolean,
+    error?: string,
+};
+----
+
+== Future features
+
+* [ ] fixed numbers
+* [ ] booleans
+* [ ] custom atomic values
+* [ ] counters
+* [ ] strict mode (error on invalid nodes)
+
