@@ -75,8 +75,9 @@ function a(...elements: (ConvertedBinaryTree|string|number|null)[]): ConvertedBi
 	}
 }
 
-function _runTest(converter: ConversionTree, tree: BinaryTree, expectedValue: ConversionResult|(() => ConversionResult), its = '') {
-	describe(treeToString(tree), function () {
+function _runTest(conversionString: string, tree: BinaryTree, expectedValue: ConversionResult|(() => ConversionResult), its = '') {
+	let converter: ConversionTree = parse(lexer(conversionString));
+	describe(`"${conversionString}" (${treeToString(tree)})`, function () {
 		it(its, function () {
 			const actual = runConvert(tree, converter);
 			let expected;
@@ -84,15 +85,6 @@ function _runTest(converter: ConversionTree, tree: BinaryTree, expectedValue: Co
 			else expected = expectedValue;
 			expect(actual).to.deep.equal(expected);
 		});
-	});
-}
-
-function _runAllTests(converter: string, tests: [BinaryTree, ConversionResult|(() => ConversionResult), string?][]) {
-	let conversionTree: ConversionTree = parse(lexer(converter));
-	describe(`Converter: ${converter}`, function () {
-		for (let [tree, expected, its] of tests) {
-			_runTest(conversionTree, tree, expected, its);
-		}
 	});
 }
 
@@ -104,340 +96,299 @@ const UNKNOWN_TYPE = `Unknown type 'unknown'`;
 
 //Other definitions
 const EMPTY_LIST_STR = '[]';
-// const LIST_TERM = cv('END');
 
 //Tests start
 describe(`#runConvert`, function () {
-	_runAllTests(
-		'any',
-		[
-			[
-				null,
-				{
-					error: false,
-					tree: cv(null)
-				},
-				'should match'
-			],
-			[
-				t(null, null),
-				{
-					error: false,
-					tree: ct(null, null)
-				},
-				'should match'
-			],
-			[
-				t(t(null, null), t(null, null)),
-				{
-					error: false,
-					tree: ct(
-						ct(null, null),
-						ct(null, null)
-					)
-				},
-				'should match'
-			],
-		]
+	_runTest('any',
+		null,
+		{
+			error: false,
+			tree: cv(null)
+		},
+		'should match'
+	);
+	_runTest('any',
+		t(null, null),
+		{
+			error: false,
+			tree: ct(null, null)
+		},
+		'should match'
+	);
+	_runTest('any',
+		t(t(null, null), t(null, null)),
+		{
+			error: false,
+			tree: ct(
+				ct(null, null),
+				ct(null, null)
+			)
+		},
+		'should match'
 	);
 
-	_runAllTests(
-		'int',
-		[
-			[
-				null,
-				{
-					tree: cv(0),
-					error: false,
-				},
-				'should match 0'
-			],
-			[
-				t(null, null),
-				{
-					tree: cv(1),
-					error: false,
-				},
-				'should match 1'
-			],
-			[
-				t(null, t(null, null)),
-				{
-					tree: cv(2),
-					error: false,
-				},
-				'should match 2'
-			],
-			[
-				t(t(null, null), t(null, null)),
-				{
-					tree: ct(
-						ct(null, null),
-						ct(null, null),
-						EXPECTED_NUMBER
-					),
-					error: true,
-				},
-				'should fail to match'
-			],
-		]
+	_runTest('int',
+		null,
+		{
+			tree: cv(0),
+			error: false,
+		},
+		'should match 0'
+	);
+	_runTest('int',
+		t(null, null),
+		{
+			tree: cv(1),
+			error: false,
+		},
+		'should match 1'
+	);
+	_runTest('int',
+		t(null, t(null, null)),
+		{
+			tree: cv(2),
+			error: false,
+		},
+		'should match 2'
+	);
+	_runTest('int',
+		t(t(null, null), t(null, null)),
+		{
+			tree: ct(
+				ct(null, null),
+				ct(null, null),
+				EXPECTED_NUMBER
+			),
+			error: true,
+		},
+		'should fail to match'
 	);
 
-	_runAllTests(
-		'<nil.nil>',
-		[
-			[
+	_runTest('<nil.nil>',
+		null,
+		{
+			tree: cv(null, EXPECTED_TREE),
+			error: true,
+		},
+		'should fail'
+	);
+	_runTest('<nil.nil>',
+		t(null, null),
+		{
+			tree: ct(null, null),
+			error: false,
+		},
+		'should match'
+	);
+	_runTest('<nil.nil>',
+		t(null, t(null, null)),
+		{
+			tree: ct(
 				null,
-				{
-					tree: cv(null, EXPECTED_TREE),
-					error: true,
-				},
-				'should fail'
-			],
-			[
-				t(null, null),
-				{
-					tree: ct(null, null),
-					error: false,
-				},
-				'should match'
-			],
-			[
-				t(null, t(null, null)),
-				{
-					tree: ct(
-						null,
-						ct(null, null, EXPECTED_NIL),
-					),
-					error: true,
-				},
-				'should fail'
-			],
-			[
-				t(t(null, null), t(null, null)),
-				{
-					tree: ct(ct(null, null, EXPECTED_NIL), ct(null, null, EXPECTED_NIL)),
-					error: true,
-				},
-				'should fail'
-			],
-		]
+				ct(null, null, EXPECTED_NIL),
+			),
+			error: true,
+		},
+		'should fail'
+	);
+	_runTest('<nil.nil>',
+		t(t(null, null), t(null, null)),
+		{
+			tree: ct(ct(null, null, EXPECTED_NIL), ct(null, null, EXPECTED_NIL)),
+			error: true,
+		},
+		'should fail'
 	);
 
-	_runAllTests(
-		'<nil.any>',
-		[
-			[
-				null,
-				{
-					tree: cv(null, EXPECTED_TREE),
-					error: true,
-				},
-				'should fail'
-			],
-			[
-				t(null, null),
-				{
-					tree: ct(null, null),
-					error: false,
-				},
-				'should match'
-			],
-			[
-				t(null, t(null, null)),
-				{
-					tree: ct(null, ct(null, null)),
-					error: false,
-				},
-				'should match'
-			],
-			[
-				t(t(null, null), t(null, null)),
-				{
-					tree: ct(ct(null, null, EXPECTED_NIL), ct(null, null)),
-					error: true,
-				},
-				'should fail'
-			],
-		]
+	_runTest('<nil.any>',
+		null,
+		{
+			tree: cv(null, EXPECTED_TREE),
+			error: true,
+		},
+		'should fail'
+	);
+	_runTest('<nil.any>',
+		t(null, null),
+		{
+			tree: ct(null, null),
+			error: false,
+		},
+		'should match'
+	);
+	_runTest('<nil.any>',
+		t(null, t(null, null)),
+		{
+			tree: ct(null, ct(null, null)),
+			error: false,
+		},
+		'should match'
+	);
+	_runTest('<nil.any>',
+		t(t(null, null), t(null, null)),
+		{
+			tree: ct(ct(null, null, EXPECTED_NIL), ct(null, null)),
+			error: true,
+		},
+		'should fail'
 	);
 
-	_runAllTests(
-		'int[]',
-		[
-			[
-				null,
-				{
-					tree: a(),
-					error: false,
-				},
-				'should match []'
-			],
-			[
-				t(null, null),
-				{
-					tree: a(0),
-					error: false,
-				},
-				'should match [0]'
-			],
-			[
-				t(null, t(null, null)),
-				{
-					tree: a(0, 0),
-					error: false,
-				},
-				'should match [0,0]'
-			],
-			[
-				t(t(null, t(null, null)), t(null, null)),
-				{
-					tree: a(2, 0),
-					error: false,
-				},
-				'should match [2,0]'
-			],
-			[
-				t(t(t(null, null), null), t(null, null)),
-				{
-					tree: a(ct(ct(null, null), null, EXPECTED_NUMBER),0),
-					error: true,
-				},
-				'should fail with [E,0]'
-			],
-		]
+	_runTest('int[]',
+		null,
+		{
+			tree: a(),
+			error: false,
+		},
+		'should match []'
+	);
+	_runTest('int[]',
+		t(null, null),
+		{
+			tree: a(0),
+			error: false,
+		},
+		'should match [0]'
+	);
+	_runTest('int[]',
+		t(null, t(null, null)),
+		{
+			tree: a(0, 0),
+			error: false,
+		},
+		'should match [0,0]'
+	);
+	_runTest('int[]',
+		t(t(null, t(null, null)), t(null, null)),
+		{
+			tree: a(2, 0),
+			error: false,
+		},
+		'should match [2,0]'
+	);
+	_runTest('int[]',
+		t(t(t(null, null), null), t(null, null)),
+		{
+			tree: a(ct(ct(null, null), null, EXPECTED_NUMBER),0),
+			error: true,
+		},
+		'should fail with [E,0]'
 	);
 
-	_runAllTests(
-		'(int|any)[]',
-		[
-			[
-				null,
-				{
-					tree: a(),
-					error: false,
-				},
-				'should match []'
-			],
-			[
-				t(null, null),
-				{
-					tree: a(0),
-					error: false,
-				},
-				'should match [0]'
-			],
-			[
-				t(null, t(null, null)),
-				{
-					tree: a(0, 0),
-					error: false,
-				},
-				'should match [0,0]'
-			],
-			[
-				t(t(null, t(null, null)), t(null, null)),
-				{
-					tree: a(2,0),
-					error: false,
-				},
-				'should match [2,0]'
-			],
-			[
-				t(t(t(null, null), null), t(null, null)),
-				{
-					tree: a(ct(ct(null, null), null), 0),
-					error: false,
-				},
-				'should match with [<<nil.nil>.nil>,0]'
-			],
-		]
+	_runTest('(int|any)[]',
+		null,
+		{
+			tree: a(),
+			error: false,
+		},
+		'should match []'
+	);
+	_runTest('(int|any)[]',
+		t(null, null),
+		{
+			tree: a(0),
+			error: false,
+		},
+		'should match [0]'
+	);
+	_runTest('(int|any)[]',
+		t(null, t(null, null)),
+		{
+			tree: a(0, 0),
+			error: false,
+		},
+		'should match [0,0]'
+	);
+	_runTest('(int|any)[]',
+		t(t(null, t(null, null)), t(null, null)),
+		{
+			tree: a(2,0),
+			error: false,
+		},
+		'should match [2,0]'
+	);
+	_runTest('(int|any)[]',
+		t(t(t(null, null), null), t(null, null)),
+		{
+			tree: a(ct(ct(null, null), null), 0),
+			error: false,
+		},
+		'should match with [<<nil.nil>.nil>,0]'
 	);
 
-	_runAllTests(
-		'[nil, any]',
-		[
-			[
-				null,
-				{
-					tree: cv(null, EXPECTED_TREE),
-					error: true,
-				},
-				'should fail []'
-			],
-			[
-				t(null, null),
-				{
-					tree: ct(null, cv(null, EXPECTED_TREE)),
-					error: true,
-				},
-				'should match [nil]'
-			],
-			[
-				t(null, t(null, null)),
-				{
-					tree: ct(null, ct(null, null)),
-					error: false,
-				},
-				'should match [nil,nil]'
-			],
-			[
-				t(null, t(t(null, null), null)),
-				{
-					tree: ct(null, ct(ct(null, null), null)),
-					error: false,
-				},
-				'should match [nil,<nil.nil>]'
-			],
-			[
-				t(t(null, null), null),
-				{
-					tree: ct(ct(null, null, EXPECTED_NIL), cv(null, EXPECTED_TREE)),
-					error: true,
-				},
-				'should fail [<nil.nil>]'
-			],
-		]
+	_runTest('[nil, any]',
+		null,
+		{
+			tree: cv(null, EXPECTED_TREE),
+			error: true,
+		},
+		'should fail []'
+	);
+	_runTest('[nil, any]',
+		t(null, null),
+		{
+			tree: ct(null, cv(null, EXPECTED_TREE)),
+			error: true,
+		},
+		'should match [nil]'
+	);
+	_runTest('[nil, any]',
+		t(null, t(null, null)),
+		{
+			tree: ct(null, ct(null, null)),
+			error: false,
+		},
+		'should match [nil,nil]'
+	);
+	_runTest('[nil, any]',
+		t(null, t(t(null, null), null)),
+		{
+			tree: ct(null, ct(ct(null, null), null)),
+			error: false,
+		},
+		'should match [nil,<nil.nil>]'
+	);
+	_runTest('[nil, any]',
+		t(t(null, null), null),
+		{
+			tree: ct(ct(null, null, EXPECTED_NIL), cv(null, EXPECTED_TREE)),
+			error: true,
+		},
+		'should fail [<nil.nil>]'
 	);
 
-	_runAllTests(
-		'unknown[]',
-		[
-			[
-				null,
-				{
-					tree: a(),
-					error: false,
-				},
-				'should match []'
-			],
-			[
-				t(null, null),
-				{
-					tree: a(cv(null, UNKNOWN_TYPE)),
-					error: true,
-				},
-				'should fail with an unknown atom'
-			],
-			[
-				t(null, t(null, null)),
-				{
-					tree: a(cv(null, UNKNOWN_TYPE), cv(null, UNKNOWN_TYPE)),
-					error: true,
-				},
-				'should fail with an unknown atom'
-			],
-			[
-				t(t(null, t(null, null)), t(null, null)),
-				{
-					tree: a(
-						ct(null, ct(null, null), UNKNOWN_TYPE),
-						cv(null, UNKNOWN_TYPE)
-					),
-					error: true,
-				},
-				'should fail with an unknown atom'
-			],
-		]
+	_runTest('unknown[]',
+		null,
+		{
+			tree: a(),
+			error: false,
+		},
+		'should match []'
+	);
+	_runTest('unknown[]',
+		t(null, null),
+		{
+			tree: a(cv(null, UNKNOWN_TYPE)),
+			error: true,
+		},
+		'should fail with an unknown atom'
+	);
+	_runTest('unknown[]',
+		t(null, t(null, null)),
+		{
+			tree: a(cv(null, UNKNOWN_TYPE), cv(null, UNKNOWN_TYPE)),
+			error: true,
+		},
+		'should fail with an unknown atom'
+	);
+	_runTest('unknown[]',
+		t(t(null, t(null, null)), t(null, null)),
+		{
+			tree: a(
+				ct(null, ct(null, null), UNKNOWN_TYPE),
+				cv(null, UNKNOWN_TYPE)
+			),
+			error: true,
+		},
+		'should fail with an unknown atom'
 	);
 });
