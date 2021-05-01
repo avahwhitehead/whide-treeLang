@@ -90,8 +90,9 @@ function _parentConversionResult(left: ConversionResult, right: ConversionResult
  * Convert each element of a list using a conversion tree's 'list' node.
  * @param tree				The tree to convert
  * @param conversionTree	The conversion tree node
+ * @param atoms				Map of custom language atoms
  */
-function _convertListInternal(tree: BinaryTree, conversionTree: ListType): { children: ConvertedBinaryTree[], error?: boolean } {
+function _convertListInternal(tree: BinaryTree, conversionTree: ListType, atoms: Map<string, ConversionTree>): { children: ConvertedBinaryTree[], error?: boolean } {
 	//Null trees match with empty lists
 	if (tree === null) {
 		return {
@@ -99,9 +100,9 @@ function _convertListInternal(tree: BinaryTree, conversionTree: ListType): { chi
 		};
 	}
 	//Convert the head element
-	const head = _convert(tree.left, conversionTree.type);
+	const head = _convert(tree.left, conversionTree.type, atoms);
 	//Convert the rest of the list
-	const tail = _convertListInternal(tree.right, conversionTree);
+	const tail = _convertListInternal(tree.right, conversionTree, atoms);
 
 	//Add each element to the child nodes of the resulting tree
 	let children = [head.tree];
@@ -130,16 +131,16 @@ function _convertNumber(tree: BinaryTree): ConversionResult {
 
 /**
  * Convert a tree using an atom string (e.g. 'nil'/'any'/'int')
- * @param tree	The tree to check
- * @param atom	The atomic string to check against
+ * @param tree		The tree to check
+ * @param atom		The atomic string to check against
+ * @param atoms		Map of custom language atoms
  */
-function _convertAtom(tree: BinaryTree, atom: string): ConversionResult {
+function _convertAtom(tree: BinaryTree, atom: string, atoms: Map<string, ConversionTree>): ConversionResult {
 	//Built-in types
 	switch (atom) {
 		case 'nil':
 			//The tree node must be null
 			if (tree === null) return _treeToConversionResult(tree);
-				// return { tree: { value: null } };
 			return _treeToConversionResult(tree, `Expected nil`);
 		case 'any':
 			//Any tree is valid
@@ -148,8 +149,17 @@ function _convertAtom(tree: BinaryTree, atom: string): ConversionResult {
 			return _convertNumber(tree);
 	}
 
+	//Check if the atom has been defined by the user
+	let atomTree: ConversionTree|undefined = atoms.get(atom);
 	//Can't check against unknown types
-	return _treeToConversionResult(tree, `Unknown type '${atom}'`);
+	if (atomTree === undefined) return _treeToConversionResult(tree, `Unknown type '${atom}'`);
+
+	//Convert using the atom
+	let conversionResult = _convert(tree, atomTree, atoms);
+	//Add the atom name to the root of the subtree
+	conversionResult.tree.value = atom;
+	//Return the converted tree
+	return conversionResult;
 }
 
 //========
@@ -160,13 +170,14 @@ function _convertAtom(tree: BinaryTree, atom: string): ConversionResult {
  * Convert the tree using a conversion tree 'choice' node
  * @param tree				The tree to check
  * @param conversionTree	The conversion tree node
+ * @param atoms				Map of custom language atoms
  */
-function _convertChoice(tree: BinaryTree, conversionTree: ChoiceType): ConversionResult {
+function _convertChoice(tree: BinaryTree, conversionTree: ChoiceType, atoms: Map<string, ConversionTree>): ConversionResult {
 	let res: ConversionResult;
 	//Test the tree against each type of the choice, in order
 	for (let type of conversionTree.type) {
-		if (typeof type === "string") res = _convertAtom(tree, type);
-		else res = _convert(tree, type);
+		if (typeof type === "string") res = _convertAtom(tree, type, atoms);
+		else res = _convert(tree, type, atoms);
 		//Return the result if it was converted with no errors
 		if (!res.error) return res;
 	}
@@ -184,14 +195,15 @@ function _convertChoice(tree: BinaryTree, conversionTree: ChoiceType): Conversio
  * Convert the tree using a conversion tree 'tree' node
  * @param tree				The tree to check
  * @param conversionTree	The conversion tree node
+ * @param atoms				Map of custom language atoms
  */
-function _convertTree(tree: BinaryTree, conversionTree: TreeType): ConversionResult {
+function _convertTree(tree: BinaryTree, conversionTree: TreeType, atoms: Map<string, ConversionTree>): ConversionResult {
 	//An empty tree can't match a TreeType node
 	if (tree == null) return _treeToConversionResult(tree, `Expected a tree, got nil`);
 	//Convert the left and right nodes
 	return _parentConversionResult(
-		_convert(tree.left, conversionTree.left),
-		_convert(tree.right, conversionTree.right)
+		_convert(tree.left, conversionTree.left, atoms),
+		_convert(tree.right, conversionTree.right, atoms)
 	);
 }
 
@@ -199,10 +211,11 @@ function _convertTree(tree: BinaryTree, conversionTree: TreeType): ConversionRes
  * Convert the tree using a conversion tree 'list' node
  * @param tree				The tree to check
  * @param conversionTree	The conversion tree node
+ * @param atoms				Map of custom language atoms
  */
-function _convertList(tree: BinaryTree, conversionTree: ListType): ConversionResult {
+function _convertList(tree: BinaryTree, conversionTree: ListType, atoms: Map<string, ConversionTree>): ConversionResult {
 	//Convert each element of the list
-	const res = _convertListInternal(tree, conversionTree);
+	const res = _convertListInternal(tree, conversionTree, atoms);
 	//Wrap the elements in a tree structure
 	const children = res.children;
 	return {
@@ -223,16 +236,17 @@ function _convertList(tree: BinaryTree, conversionTree: ListType): ConversionRes
  * Read the type of the conversion tree's root node, and convert the tree accordingly
  * @param tree				The tree to check
  * @param conversionTree	The conversion tree node
+ * @param atoms				Map of custom language atoms
  */
-function _convert(tree: BinaryTree, conversionTree: ConversionTree): ConversionResult {
+function _convert(tree: BinaryTree, conversionTree: ConversionTree, atoms: Map<string, ConversionTree>): ConversionResult {
 	const category = conversionTree.category;
 	switch (category) {
 		case "choice":
-			return _convertChoice(tree, (conversionTree as ChoiceType));
+			return _convertChoice(tree, (conversionTree as ChoiceType), atoms);
 		case "list":
-			return _convertList(tree, (conversionTree as ListType));
+			return _convertList(tree, (conversionTree as ListType), atoms);
 		case "tree":
-			return _convertTree(tree, (conversionTree as TreeType));
+			return _convertTree(tree, (conversionTree as TreeType), atoms);
 		default:
 			throw new ConverterException(`Unknown branch type: '${category}'`);
 	}
@@ -242,12 +256,15 @@ function _convert(tree: BinaryTree, conversionTree: ConversionTree): ConversionR
  * Match a binary tree against a given conversion tree
  * @param tree				The tree to convert
  * @param conversionTree	The conversion tree to use (should be generated by the `parser`)
+ * @param atoms				Map of custom atomic values to extend the language.
+ * 							Represented in {@code atomName:ConversionTree} format.
  * @returns		An object containing the result of the conversion,
  * 				and a boolean saying if there is an error anywhere in the tree
  */
-export default function runConvert(tree: BinaryTree, conversionTree: ConversionTree) : { tree: ConvertedBinaryTree, error: boolean } {
+export default function runConvert(tree: BinaryTree, conversionTree: ConversionTree, atoms?: Map<string, ConversionTree>) : { tree: ConvertedBinaryTree, error: boolean } {
+	atoms = atoms || new Map<string, ConversionTree>();
 	//Perform the tree conversion
-	const res = _convert(tree, conversionTree);
+	const res = _convert(tree, conversionTree, atoms);
 	//Return the type, ensuring `error` is always a boolean
 	return {
 		tree: res.tree,

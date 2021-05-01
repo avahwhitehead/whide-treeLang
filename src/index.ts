@@ -23,17 +23,34 @@ export type ConversionResultType = {
 	error: boolean
 };
 
+function _runParse(conversionString: string): ConversionTree {
+	//First lex the input into tokens
+	let tokens: TOKEN[] = lexer(conversionString);
+	//Then parse the result into a ConversionTree
+	return parser(tokens);
+}
+
 /**
  * Convert a binary tree using the provided conversion string
  * @param tree				The tree to convert
  * @param conversionString	The conversion string to use
+ * @param customAtoms		Custom atomic values to extend the language.
+ * 							Represented in {@code atomName:conversionString} format.
+ * 							(e.g. {@code "mybool": "true|false"})
  * @returns		Object containing the result of the conversion
  */
-export default function(tree: BinaryTree, conversionString: string): ConversionResultType {
-	//First lex the input into tokens
-	let tokens: TOKEN[] = lexer(conversionString);
-	//Then parse the result into a ConversionTree
-	let parseResult: ConversionTree = parser(tokens);
+export default function(tree: BinaryTree, conversionString: string, customAtoms?: Map<string, string>): ConversionResultType {
+	//Parse the conversion string into a ConversionTree
+	let parseResult: ConversionTree = _runParse(conversionString);
+
+	//Parse each of the custom atoms into a ConversionTree
+	customAtoms = customAtoms || new Map<string, string>();
+	let atoms: Map<string, ConversionTree> = new Map<string, ConversionTree>();
+	customAtoms.forEach((converter: string, name: string) => {
+		let parseResult: ConversionTree = _runParse(converter);
+		atoms.set(name, parseResult);
+	});
+
 	//Finally perform the conversion
-	return runConvert(tree, parseResult);
+	return runConvert(tree, parseResult, atoms);
 }
