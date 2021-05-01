@@ -203,7 +203,7 @@ function _convertTree(tree: BinaryTree, conversionTree: TreeType): ConversionRes
 function _convertList(tree: BinaryTree, conversionTree: ListType): ConversionResult {
 	//Convert each element of the list
 	const res = _convertListInternal(tree, conversionTree);
-	//Wrap the elements in a tree strcuture
+	//Wrap the elements in a tree structure
 	const children = res.children;
 	return {
 		error: res.error,
