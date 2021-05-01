@@ -2,80 +2,12 @@ import { expect } from "chai";
 import { describe, it } from "mocha";
 import runConvert, { ConversionResult } from "../src/converter";
 import parse, { ConversionTree } from "../src/parser";
-import { BinaryTree, ConvertedBinaryTree } from "../src";
+import { BinaryTree } from "../src";
 import lexer from "../src/lexer";
+import * as util from "util";
+import { a, ct, cv, t, treeToString, UNKNOWN_TYPE, EXPECTED_TREE, EXPECTED_NIL, EXPECTED_NUMBER } from "./utils";
 
-/**
- * Convert a binary tree to its string representation (for displaying)
- * @param tree	The tree to convert
- */
-function treeToString(tree: BinaryTree): string {
-	if (tree === null) return `nil`;
-	return `<${treeToString(tree.left)}.${treeToString(tree.right)}>`
-}
-
-/**
- * Convert a number to a tree
- * @param n	The number to convert
- */
-function tn(n: number) : BinaryTree {
-	if (n === 0) return null;
-	return t(null, tn(n-1));
-}
-
-/**
- * Shorthand function for building a tree
- * @param l	The left-hand child
- * @param r	The right-hand child
- */
-function t(l: BinaryTree, r: BinaryTree): BinaryTree {
-	return {
-		left: (typeof l === 'number' ? tn(l) : l),
-		right: (typeof r === 'number' ? tn(r) : r),
-	};
-}
-
-/**
- * Convert the given value to a ConvertedBinaryTree type
- * @param value	The value to use
- * @param error	Optional error message
- */
-function cv(value: string|number|null, error?: string): ConvertedBinaryTree {
-	return { value, error };
-}
-
-/**
- * Same as {@link t} but for the ConvertedBinaryTree type
- * @param l		The left-hand child
- * @param r		The right-hand child
- * @param error	Optional error message
- */
-function ct(l: string|number|null|ConvertedBinaryTree, r: string|number|null|ConvertedBinaryTree, error?: string): ConvertedBinaryTree {
-	if (l === null) l = cv(null);
-	if (r === null) r = cv(null);
-	if (typeof l === 'number' || typeof l === 'string') l = cv(l);
-	if (typeof r === 'number' || typeof r === 'string') r = cv(r);
-	return { children: [l, r], error };
-}
-
-/**
- *
- * @param elements
- */
-function a(...elements: (ConvertedBinaryTree|string|number|null)[]): ConvertedBinaryTree {
-	const standardisedElements = elements.map((e) => {
-		if (e === null) return cv(null);
-		if (typeof e === 'number' || typeof e === 'string') return cv(e);
-		return e;
-	});
-	return {
-		children: standardisedElements,
-		value: EMPTY_LIST_STR,
-		list: true,
-	}
-}
-
-function _runTest(conversionString: string, tree: BinaryTree, expectedValue: ConversionResult|(() => ConversionResult), its = '') {
+function _runTest(conversionString: string, tree: BinaryTree, expectedValue: ConversionResult|(()=>ConversionResult), its = '') {
 	let converter: ConversionTree = parse(lexer(conversionString));
 	describe(`"${conversionString}" (${treeToString(tree)})`, function () {
 		it(its, function () {
@@ -87,15 +19,6 @@ function _runTest(conversionString: string, tree: BinaryTree, expectedValue: Con
 		});
 	});
 }
-
-//Error message definitions
-const EXPECTED_NIL = `Expected nil`;
-const EXPECTED_NUMBER = `Not a valid number`;
-const EXPECTED_TREE = `Expected a tree, got nil`;
-const UNKNOWN_TYPE = `Unknown type 'unknown'`;
-
-//Other definitions
-const EMPTY_LIST_STR = '[]';
 
 //Tests start
 describe(`#runConvert`, function () {
@@ -367,7 +290,7 @@ describe(`#runConvert`, function () {
 	_runTest('unknown[]',
 		t(null, null),
 		{
-			tree: a(cv(null, UNKNOWN_TYPE)),
+			tree: a(cv(null, util.format(UNKNOWN_TYPE, 'unknown'))),
 			error: true,
 		},
 		'should fail with an unknown atom'
@@ -375,7 +298,7 @@ describe(`#runConvert`, function () {
 	_runTest('unknown[]',
 		t(null, t(null, null)),
 		{
-			tree: a(cv(null, UNKNOWN_TYPE), cv(null, UNKNOWN_TYPE)),
+			tree: a(cv(null, util.format(UNKNOWN_TYPE, 'unknown')), cv(null, util.format(UNKNOWN_TYPE, 'unknown'))),
 			error: true,
 		},
 		'should fail with an unknown atom'
@@ -384,8 +307,8 @@ describe(`#runConvert`, function () {
 		t(t(null, t(null, null)), t(null, null)),
 		{
 			tree: a(
-				ct(null, ct(null, null), UNKNOWN_TYPE),
-				cv(null, UNKNOWN_TYPE)
+				ct(null, ct(null, null), util.format(UNKNOWN_TYPE, 'unknown')),
+				cv(null, util.format(UNKNOWN_TYPE, 'unknown'))
 			),
 			error: true,
 		},

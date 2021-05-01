@@ -1,46 +1,7 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
 import { ConvertedBinaryTree, stringify } from "../src";
-
-/**
- * Convert the given value to a ConvertedBinaryTree type
- * @param value	The value to use
- * @param error	Optional error message
- */
-function cv(value: string|number|null, error?: string): ConvertedBinaryTree {
-	return { value, error };
-}
-
-/**
- * Same as {@link t} but for the ConvertedBinaryTree type
- * @param l		The left-hand child
- * @param r		The right-hand child
- * @param error	Optional error message
- */
-function ct(l: string|number|null|ConvertedBinaryTree, r: string|number|null|ConvertedBinaryTree, error?: string): ConvertedBinaryTree {
-	if (l === null) l = cv(null);
-	if (r === null) r = cv(null);
-	if (typeof l === 'number' || typeof l === 'string') l = cv(l);
-	if (typeof r === 'number' || typeof r === 'string') r = cv(r);
-	return { children: [l, r], error };
-}
-
-/**
- *
- * @param elements
- */
-function a(...elements: (ConvertedBinaryTree|string|number|null)[]): ConvertedBinaryTree {
-	const standardisedElements = elements.map((e) => {
-		if (e === null) return cv(null);
-		if (typeof e === 'number' || typeof e === 'string') return cv(e);
-		return e;
-	});
-	return {
-		children: standardisedElements,
-		value: '[]',
-		list: true,
-	}
-}
+import { a, ct, cv } from "./utils";
 
 function _runTest(expected: string, tree: ConvertedBinaryTree, its?: string) {
 	let itsmsg = its || 'should produce the expected value';
