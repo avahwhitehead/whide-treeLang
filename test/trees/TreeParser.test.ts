@@ -1,7 +1,8 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
 import lexTree, { TOKEN } from "../../src/trees/TreeLexer";
-import parseTree, { BinaryTree } from "../../src/trees/TreeParser";
+import parseTree from "../../src/trees/TreeParser";
+import { BinaryTree } from "../../src";
 import { t, tn } from "../utils";
 
 describe('TreeParser (valid)', function () {
