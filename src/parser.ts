@@ -20,7 +20,7 @@ import ParserException from "./exceptions/ParserException";
  */
 export type ChoiceType = {
 	category: 'choice',
-	type: (string|ConversionTree)[],
+	type: (string|number|ConversionTree)[],
 }
 /**
  * Represents a list of nodes of a given (set of) types.
@@ -79,9 +79,9 @@ function _isList(tokens: TOKEN[]): boolean {
  * @param parent	The parent node
  * @param child		The child node to add
  */
-function _addToChoice(parent: ChoiceType, child: string|ConversionTree) {
-	//Add strings directly
-	if (typeof child === 'string') parent.type.push(child);
+function _addToChoice(parent: ChoiceType, child: string|number|ConversionTree) {
+	//Add strings and numbers directly
+	if (typeof child === 'string' || typeof child === 'number') parent.type.push(child);
 	//Unwrap nested choice nodes
 	else if (child.category === 'choice') parent.type.push(...child.type);
 	//Add other types as-is
@@ -94,7 +94,7 @@ function _addToChoice(parent: ChoiceType, child: string|ConversionTree) {
  * @param actual	The actual token received
  * @param expected	The expected token (or undefined)
  */
-function _unexpectedToken(actual: string, ...expected: string[]): ParserException {
+function _unexpectedToken(actual: TOKEN|string, ...expected: (TOKEN|string)[]): ParserException {
 	if (expected.length === 0) return new ParserException(`Unexpected token: '${actual}'`);
 	if (expected.length === 1) return new ParserException(`Unexpected token: expected '${expected[0]}' got '${actual}'`);
 	return new ParserException(`Unexpected token: expected one of '${expected.join(`', '`)}' got '${actual}'`);
@@ -178,7 +178,7 @@ function _interpretListInternal(tokens: TOKEN[]): ConversionTree {
  * Read the next atom (nil/int/nil[]/int[]/nil[][]...) from the token list
  * @param tokens	The token list
  */
-function _readAtom(tokens: TOKEN[]) : string|ConversionTree {
+function _readAtom(tokens: TOKEN[]) : string|number|ConversionTree {
 	//Read the first token in the list, or error if it doesn't exist
 	let first: TOKEN = _expect(tokens);
 
@@ -253,7 +253,7 @@ function _readAllAtoms(tokens: TOKEN[]): ConversionTree {
 	//Unwrap `choice`s of single items
 	if (res.category === 'choice' && res.type.length === 1) {
 		const t = res.type[0];
-		if (typeof t !== 'string') return t;
+		if (typeof t !== 'string' && typeof t !== 'number') return t;
 	}
 	//Return the produced type
 	return res;
@@ -335,7 +335,7 @@ export default function parse(tokens: TOKEN[]) : ConversionTree {
 	//Unwrap the root node if it is a choice of only 1 option
 	if (res.category === 'choice' && res.type.length === 1) {
 		const t = res.type[0];
-		if (typeof t !== 'string') return t;
+		if (typeof t !== 'string' && typeof t !== 'number') return t;
 	}
 	//Return the produced tree
 	return res;

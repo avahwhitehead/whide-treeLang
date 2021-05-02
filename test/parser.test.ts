@@ -168,6 +168,37 @@ describe(`#parser (valid)`, function () {
 		});
 	});
 
+	describe('0|1|10|999', function () {
+		it(`should produce a choice tree of 4 numbers`, function () {
+			let str = '0|1|10|999';
+			let tokens = lexer(str);
+			const expected: ConversionTree = {
+				category: 'choice',
+				type: [0, 1, 10, 999]
+			};
+			expect(
+				parse(tokens)
+			).to.eql(expected);
+		});
+	});
+
+	describe('12[]', function () {
+		it(`should produce a list tree matching only 12s`, function () {
+			let str = '12[]';
+			let tokens = lexer(str);
+			const expected: ConversionTree = {
+				category: 'list',
+				type: {
+					category: 'choice',
+					type: [12]
+				}
+			};
+			expect(
+				parse(tokens)
+			).to.eql(expected);
+		});
+	});
+
 	describe('<any.any>', function () {
 		it('should match a tree with any two children', function () {
 			let str = '<any.any>';

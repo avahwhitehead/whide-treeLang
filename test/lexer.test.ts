@@ -142,6 +142,36 @@ describe('Lexer (tokens)', function () {
 			expect(actual).to.eql(expected);
 		});
 	});
+	for (let num of ['0', '1', '9', '10', '226']) {
+		describe(`'${num}'`, function () {
+			it(`should produce the number ${num}`, function () {
+				const actual: TOKEN[] = lexer(num);
+				const expected: TOKEN[] = [Number.parseInt(num)];
+				expect(actual).to.eql(expected);
+			});
+		});
+	}
+	describe(`'10 5'`, function () {
+		it(`should produce the tokens 10 and 5`, function () {
+			const actual: TOKEN[] = lexer('10 5');
+			const expected: TOKEN[] = [10, 5];
+			expect(actual).to.eql(expected);
+		});
+	});
+	describe(`'10atom'`, function () {
+		it(`should produce two tokens (10 and 'atom')`, function () {
+			const actual: TOKEN[] = lexer('10atom');
+			const expected: TOKEN[] = [10, 'atom'];
+			expect(actual).to.eql(expected);
+		});
+	});
+	describe(`'atom 10'`, function () {
+		it(`should produce the tokens 'atom' and 10`, function () {
+			const actual: TOKEN[] = lexer('atom 10');
+			const expected: TOKEN[] = ['atom', 10];
+			expect(actual).to.eql(expected);
+		});
+	});
 });
 
 describe('Lexer (trees)', function () {

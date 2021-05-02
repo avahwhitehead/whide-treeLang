@@ -2,12 +2,14 @@ import { BinaryTree, ConvertedBinaryTree } from "../src";
 
 //Error message definitions
 export const EXPECTED_NIL = `Expected nil`;
-export const EXPECTED_NUMBER = `Not a valid number`;
+export const INVALID_NUMBER = `Not a valid number`;
 export const EXPECTED_TREE = `Expected a tree, got nil`;
 export const EXPECTED_BOOL = `Expected 'true' or 'false'`;
 export const EXPECTED_FALSE = `Expected 'false'`;
 export const EXPECTED_TRUE = `Expected 'true'`;
 export const UNKNOWN_TYPE = `Unknown type '%s'`;
+export const EXPECTED = `Expected %s`;
+export const EXPECTED_NUMBER = `Not a valid number, expected %s`;
 
 //Other definitions
 const EMPTY_LIST_STR = '[]';
