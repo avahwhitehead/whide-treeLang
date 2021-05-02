@@ -32,6 +32,7 @@ ROOT    = <ROOT.ROOT>       //Binary tree
         | (ROOT)            //Parentheses
         | ROOT\|ROOT        //Accept any of these types
         | ATOM              //Accept atomic values
+        | NAT               //Accept all the natural numbers
 
 //Fixed structure list
 FIX_LST = []                //Empty list
@@ -49,6 +50,9 @@ ATOM    = any               //Accept any type
         | int               //Integer
         | nil               //The value `nil` exactly
         | true              //Accept the value 'true' ('<nil.nil>')
+
+//The natural numbers
+NAT     = 0|1|2|...
 ----
 
 === Informal Description
@@ -60,11 +64,15 @@ See <<data-structures>> for a description of the tree forms of these types.
 
 * `nil` matches the nil value
 * `any` matches any valid tree, and returns it unchanged
+* `false` matches the value 'false' (represented as `nil`)
+* `true` matches the value 'true' (represented as `<nil.nil>`)
+* `bool`/`boolean` matches either `true` or `false`.
 * `int` matches any valid number, and converts it to its numerical representation.
 E.g:
 ** `nil` becomes `0`
 ** `<nil.nil>` becomes `1`
 ** `<nil.<nil.nil>>` becomes `2`
+* Number literals (0, 1, 2, ...) match exactly that number
 
 ==== Alternative types
 
@@ -139,6 +147,10 @@ If the error is non-recoverable (e.g. a syntax error) the converter throws an ex
 | * `nil` -> `[]`
 * `+<nil.nil>+` -> `+[]+`
 * `+<<nil.nil>.<nil.nil>>+` -> `+[[0],[]]+`
+
+| `bool`
+| * `nil` -> `false`
+* `+<nil.nil>+` -> `+true+`
 !====
 
 == Stringify
@@ -151,6 +163,7 @@ The format used by this method is similar to that used in this documentation:
 * Trees are shown as `<A.B.C...>` where `A`, `B`, and `C` are the stringified representations of each of the child nodes. In most cases there will be only 2 children.
 * Lists are shown as `[A,B,C,...]` where `A`, `B`, and `C` are the stringified lsit elements.
 * Numbers are shown as numbers (i.e. 1 is `1` etc)
+* Booleans are shown as `true` or `false`
 * Other strings are shown as-is, wrapped in "double quotes"
 
 [#data-structures]
@@ -202,9 +215,6 @@ export type ConvertedBinaryTree = {
 
 == Future features
 
-* [ ] fixed numbers
-* [ ] booleans
-* [ ] custom atomic values
 * [ ] counters
 * [ ] strict mode (error on invalid nodes)
 
