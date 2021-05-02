@@ -24,6 +24,8 @@ function stringifyVal(value: string|number|null|undefined): string {
     if (value === undefined || value === null) return `nil`;
     //Stringify numbers
     else if (typeof value === "number") return `${value}`;
+    //Keep booleans as-is
+    else if (value === "true" || value === "false") return value;
     //Wrap strings in ""
     else return `"${value}"`;
 }
