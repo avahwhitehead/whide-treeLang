@@ -2,11 +2,7 @@ import { TKN_TREE_OPN as OPEN, TKN_TREE_CLS as CLOSE, TKN_DOT as DOT } from "../
 import { TOKEN } from "./TreeLexer";
 import { _expect, _unexpectedToken } from "../utils/parser";
 import ParserException from "../exceptions/ParserException";
-
-export type BinaryTree = {
-	left: BinaryTree,
-	right: BinaryTree,
-} | null;
+import { BinaryTree } from "../types/Trees";
 
 /**
  * Convert an integer to a binary tree
