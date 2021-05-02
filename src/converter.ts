@@ -153,13 +153,26 @@ function _convertBoolean(tree: BinaryTree): ConversionResult {
 }
 
 /**
- * Converts a binary tree to an integer
- * @param tree	The tree to convert
+ * Converts a binary tree to an integer, optionally comparing with a specific integer
+ * @param tree		The tree to convert
+ * @param expected	The number to expect the tree to equal, or {@code undefined}
  */
-function _convertNumber(tree: BinaryTree): ConversionResult {
+function _convertNumber(tree: BinaryTree, expected?: number): ConversionResult {
+	//Attempt to convert the tree to a number
 	const value: number|undefined = _readNumber(tree);
-	if (value !== undefined) return _valueToConversionResult(value);
-	return _treeToConversionResult(tree, `Not a valid number`);
+
+	//Error if the tree doesn't represent a number
+	if (value === undefined) {
+		let error = `Not a valid number`;
+		if (expected !== undefined) error += `, expected ${expected}`;
+		return _treeToConversionResult(tree, error);
+	}
+	//Error if the value is unexpected
+	if (expected !== undefined && value !== expected) {
+		return _valueToConversionResult(value, `Expected ${expected}`);
+	}
+	//Return the number tree
+	return _valueToConversionResult(value);
 }
 
 /**
@@ -217,6 +230,7 @@ function _convertChoice(tree: BinaryTree, conversionTree: ChoiceType, atoms: Map
 	//Test the tree against each type of the choice, in order
 	for (let type of conversionTree.type) {
 		if (typeof type === "string") res = _convertAtom(tree, type, atoms);
+		else if (typeof type === "number") res = _convertNumber(tree, type);
 		else res = _convert(tree, type, atoms);
 		//Return the result if it was converted with no errors
 		if (!res.error) return res;

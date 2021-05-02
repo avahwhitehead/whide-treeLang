@@ -14,13 +14,18 @@ import {
 	UNKNOWN_TYPE,
 	EXPECTED_TREE,
 	EXPECTED_NIL,
-	EXPECTED_NUMBER,
-	EXPECTED_FALSE, EXPECTED_TRUE, EXPECTED_BOOL
+	INVALID_NUMBER,
+	EXPECTED_FALSE,
+	EXPECTED_TRUE,
+	EXPECTED_BOOL,
+	EXPECTED,
+	tn,
+	EXPECTED_NUMBER
 } from "./utils";
 
-function _runTest(conversionString: string, tree: BinaryTree, expectedValue: ConversionResult|(()=>ConversionResult), its = '') {
+function _runTest(conversionString: string, tree: BinaryTree, expectedValue: ConversionResult|(()=>ConversionResult), its = '', displayTree?: string) {
 	let converter: ConversionTree = parse(lexer(conversionString));
-	describe(`"${conversionString}" (${treeToString(tree)})`, function () {
+	describe(`"${conversionString}" (${displayTree || treeToString(tree)})`, function () {
 		it(its, function () {
 			const actual = runConvert(tree, converter);
 			let expected;
@@ -94,7 +99,7 @@ describe(`#runConvert`, function () {
 				tree: ct(
 					ct(null, null),
 					ct(null, null),
-					EXPECTED_NUMBER
+					INVALID_NUMBER
 				),
 				error: true,
 			},
@@ -211,7 +216,7 @@ describe(`#runConvert`, function () {
 		_runTest('int[]',
 			t(t(t(null, null), null), t(null, null)),
 			{
-				tree: a(ct(ct(null, null), null, EXPECTED_NUMBER),0),
+				tree: a(ct(ct(null, null), null, INVALID_NUMBER),0),
 				error: true,
 			},
 			'should fail with [E,0]'
@@ -426,6 +431,38 @@ describe(`#runConvert`, function () {
 					error: true,
 				},
 				`should fail to match either 'true' or 'false'`
+			);
+		}
+	});
+
+	describe('numbers', function () {
+		_runTest(`4`,
+			t(null, t(t(null, null), t(null, t(null, null)))),
+			{
+				tree: ct(null, ct(ct(null, null), ct(null, ct(null, null))), util.format(EXPECTED_NUMBER, 4)),
+				error: true,
+			},
+			`should error with an invalid number expecting 4`
+		);
+
+		//Test different numbers
+		for (let num of [3, 10, 100, 1000]) {
+			_runTest(`${num}`,
+				tn(num),
+				{
+					tree: cv(num),
+					error: false,
+				},
+				`should produce ${num}`,
+				`${num}`
+			);
+			_runTest(`${num}`,
+				null,
+				{
+					tree: cv(0, util.format(EXPECTED, num)),
+					error: true,
+				},
+				`should fail with 0 but expecting ${num}`
 			);
 		}
 	});
