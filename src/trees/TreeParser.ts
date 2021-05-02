@@ -7,6 +7,12 @@ export type BinaryTree = {
 	right: BinaryTree,
 } | null;
 
+/**
+ * Make sure the next token is an expected type.
+ * Throw an error otherwise
+ * @param token		The actual next token
+ * @param expected	The expected next token(s)
+ */
 function _expectToken(token : TOKEN|undefined, ...expected: TOKEN[]) : TOKEN {
 	//No tokens left
 	if (token === undefined) throw new ParserException(`Unexpected end of statement: Expected '${DOT}'`);
@@ -21,6 +27,10 @@ function _expectToken(token : TOKEN|undefined, ...expected: TOKEN[]) : TOKEN {
 	return token;
 }
 
+/**
+ * Parse a token list into a tree node
+ * @param tokenList	The list of tokens
+ */
 function _tokensToTree(tokenList: TOKEN[]) : BinaryTree {
 	//Get the first token in the list
 	const token : TOKEN|undefined = tokenList.shift();
@@ -53,6 +63,10 @@ function _tokensToTree(tokenList: TOKEN[]) : BinaryTree {
 	return null;
 }
 
+/**
+ * Parse a token list into a binary tree
+ * @param tokenList		The token list to parse
+ */
 export default function parse(tokenList: TOKEN[]) : BinaryTree {
 	//Parse into a binary tree
 	const tree : BinaryTree = _tokensToTree(tokenList);
