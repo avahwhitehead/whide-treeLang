@@ -12,7 +12,7 @@ import lexer, {
 	TKN_TREE_CLS,
 	TKN_TREE_OPN,
 	TOKEN
-} from "../src/lexer";
+} from "../../src/converter/lexer";
 
 describe('Lexer (symbols)', function () {
 	describe(`'|'`, function () {

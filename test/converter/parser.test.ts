@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import parse, { ChoiceType, ConversionTree } from "../src/parser";
+import parse, { ChoiceType, ConversionTree } from "../../src/converter/parser";
 import lexer, {
 	TKN_BAR,
 	TKN_COMMA,
@@ -12,7 +12,7 @@ import lexer, {
 	TKN_PREN_OPN,
 	TKN_TREE_CLS,
 	TKN_TREE_OPN,
-} from "../src/lexer";
+} from "../../src/converter/lexer";
 
 describe(`#parser (valid)`, function () {
 	describe('any', function () {

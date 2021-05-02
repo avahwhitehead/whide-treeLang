@@ -1,6 +1,6 @@
-import { BinaryTree, ConvertedBinaryTree } from "./types/Trees";
+import { BinaryTree, ConvertedBinaryTree } from "../types/Trees";
 import { ChoiceType, ConversionTree, ListType, TreeType } from "./parser";
-import ConverterException from "./exceptions/ConverterException";
+import ConverterException from "../exceptions/ConverterException";
 
 export type ConversionResult = {
 	tree: ConvertedBinaryTree,

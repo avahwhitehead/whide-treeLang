@@ -1,7 +1,7 @@
-import runConvert from "./converter";
+import runConvert from "./converter/converter";
 import { BinaryTree, ConvertedBinaryTree } from "./types/Trees";
-import lexer, { TOKEN } from "./lexer";
-import parser, { ConversionTree } from "./parser";
+import lexer, { TOKEN } from "./converter/lexer";
+import parser, { ConversionTree } from "./converter/parser";
 import stringify from "./stringify";
 
 export { BinaryTree, ConvertedBinaryTree } from "./types/Trees";

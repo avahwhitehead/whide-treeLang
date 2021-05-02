@@ -11,7 +11,7 @@ import {
 	TKN_TREE_OPN,
 	TOKEN
 } from "./lexer";
-import ParserException from "./exceptions/ParserException";
+import ParserException from "../exceptions/ParserException";
 
 /**
  * Represents a choice of acceptable types in the position.

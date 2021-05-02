@@ -1,4 +1,4 @@
-import LexerException from "./exceptions/LexerException";
+import LexerException from "../exceptions/LexerException";
 
 type SYMBOL_TOKEN = '<' | '>' | '[' | ']' | '(' | ')' | '|' | '.' | '...' | ',' | ':';
 

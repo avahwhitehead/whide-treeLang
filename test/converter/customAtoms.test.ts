@@ -1,8 +1,8 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
 import * as util from "util";
-import { ct, cv, t, tn, treeToString } from "./utils";
-import runConvert, { BinaryTree, ConversionResultType } from "../src";
+import { ct, cv, t, tn, treeToString } from "../utils";
+import runConvert, { BinaryTree, ConversionResultType } from "../../src";
 
 
 function _runTest(converter: string, atoms: Map<string, string>, tree: BinaryTree, expectedValue: ConversionResultType|(()=>ConversionResultType), its = '') {
