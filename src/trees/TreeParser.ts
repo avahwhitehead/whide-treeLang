@@ -1,4 +1,5 @@
-import { CLOSE, DOT, NIL, OPEN, TOKEN } from "./TreeLexer";
+import { TKN_TREE_OPN as OPEN, TKN_TREE_CLS as CLOSE, TKN_DOT as DOT } from "../../src/converter/lexer";
+import { TOKEN, TKN_NIL as NIL } from "../../src/trees/TreeLexer";
 import ParserException from "../exceptions/ParserException";
 
 export type BinaryTree = {

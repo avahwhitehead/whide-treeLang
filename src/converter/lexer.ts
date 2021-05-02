@@ -1,6 +1,6 @@
 import LexerException from "../exceptions/LexerException";
 
-type SYMBOL_TOKEN = '<' | '>' | '[' | ']' | '(' | ')' | '|' | '.' | '...' | ',' | ':';
+export type SYMBOL_TOKEN = '<' | '>' | '[' | ']' | '(' | ')' | '|' | '.' | '...' | ',' | ':';
 
 //Symbols
 export const TKN_DOT: SYMBOL_TOKEN = '.';
@@ -26,47 +26,72 @@ const SYMBOL_LIST = [
 //All tokens
 export type TOKEN = SYMBOL_TOKEN | string | number;
 
-export default function lexer(converterString: string) : TOKEN[] {
+/**
+ * Lex a string into a list of tokens ready for parsing
+ * @param str			The string to lex
+ * @param literalsOnly	Whether to only allow literal atomic values.
+ * 						Literals are tokens in {@link SYMBOL_TOKEN}, numbers (0,1,...) and {@code 'nil'}.
+ */
+export default function lexer(str: string, literalsOnly = false) : TOKEN[] {
 	let res: TOKEN[] = [];
 	let pos = 0;
-	while (converterString.length) {
+	while (str.length) {
 		//Remove any whitespace characters from the start of the string
-		let startingLength = converterString.length;
-		converterString = converterString.trimStart()
-		pos += startingLength - converterString.length;
+		let startingLength = str.length;
+		str = str.trimStart()
+		pos += startingLength - str.length;
 
 		//Stop if the remaining characters were all whitespace
-		if (!converterString) break;
+		if (!str) break;
 
 		//Check to see if the next token is a symbol
-		let token: SYMBOL_TOKEN | null = _checkForSymbolToken(converterString);
+		let token: SYMBOL_TOKEN | null = _checkForSymbolToken(str);
 		if (token !== null) {
 			res.push(token);
 			pos += token.length;
-			converterString = converterString.substr(token.length);
+			str = str.substr(token.length);
 			continue;
 		}
 		//Check to see if the next token is a number
-		let num: [number, number] | null = _checkForNumberToken(converterString);
+		let num: [number, number] | null = _checkForNumberToken(str);
 		if (num !== null) {
 			res.push(num[0]);
 			pos += num[1];
-			converterString = converterString.substr(num[1]);
+			str = str.substr(num[1]);
 			continue;
 		}
 		//Check to see if the next token is an atomic type
-		let atom: string | null = _checkForAtomToken(converterString);
+		let atom: string | null = _checkForAtomToken(str);
 		if (atom != null) {
+			//Only allow the `nil` atom if only literals are allowed
+			if (literalsOnly) {
+				if (atom !== 'nil') throw _unexpectedToken(atom, pos);
+				//Allow the nil token
+				res.push(atom);
+				pos += atom.length;
+				str = str.substr(atom.length);
+				continue;
+			}
+			//Allow any token otherwise
 			res.push(atom);
 			pos += atom.length;
-			converterString = converterString.substr(atom.length);
+			str = str.substr(atom.length);
 			continue;
 		}
 
 		//Unknown token
-		throw new LexerException(`SyntaxError: Unexpected token '${converterString.charAt(0)}' at position ${pos}`);
+		throw _unexpectedToken(str.charAt(0), pos);
 	}
 	return res;
+}
+
+/**
+ * Create an "unexpected token" error
+ * @param token	The unexpected token
+ * @param pos	The position the token was found at
+ */
+function _unexpectedToken(token: string, pos: number): LexerException {
+	return new LexerException(`SyntaxError: Unexpected token '${token}' at position ${pos}`);
 }
 
 /**

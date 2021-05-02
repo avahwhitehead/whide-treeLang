@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import lexTree, { NIL, OPEN, CLOSE, DOT, TOKEN } from "../../src/trees/TreeLexer";
+import { TKN_TREE_OPN as OPEN, TKN_TREE_CLS as CLOSE, TKN_DOT as DOT } from "../../src/converter/lexer";
+import lexTree, { TOKEN, TKN_NIL as NIL } from "../../src/trees/TreeLexer";
 
 describe('TreeLexer (valid)', function () {
 	describe(`#lexTree('')`, function () {
@@ -47,11 +48,15 @@ describe('TreeLexer (valid)', function () {
 });
 
 describe('TreeLexer (invalid syntax)', function () {
+	function _errorMessage(char: string, position: number): string {
+		return `Unexpected token '${char}' at position ${position}`;
+	}
+
 	describe(`#lexTree('ni')`, function () {
 		it('should detect invalid token', function () {
 			expect(() => {
 				lexTree('ni');
-			}).to.throw(Error, /^Unrecognised token/);
+			}).to.throw(_errorMessage('ni', 0));
 		});
 	});
 
@@ -59,15 +64,7 @@ describe('TreeLexer (invalid syntax)', function () {
 		it('should detect invalid token', function () {
 			expect(() => {
 				lexTree('<nil.nol>');
-			}).to.throw(Error, /^Unrecognised token/);
-		});
-	});
-
-	describe(`#lexTree('<nil,nil>')`, function () {
-		it('should detect invalid token', function () {
-			expect(() => {
-				lexTree('<nil,nil>');
-			}).to.throw(Error, /^Unrecognised token/);
+			}).to.throw(_errorMessage('nol', 5));
 		});
 	});
 });
