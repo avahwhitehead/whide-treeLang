@@ -24,7 +24,7 @@ const SYMBOL_LIST = [
 ];
 
 //All tokens
-export type TOKEN = SYMBOL_TOKEN | string;
+export type TOKEN = SYMBOL_TOKEN | string | number;
 
 export default function lexer(converterString: string) : TOKEN[] {
 	let res: TOKEN[] = [];
@@ -44,16 +44,27 @@ export default function lexer(converterString: string) : TOKEN[] {
 			res.push(token);
 			pos += token.length;
 			converterString = converterString.substr(token.length);
-		} else {
-			let atom: string|null = _checkForAtomToken(converterString);
-			if (atom == null) {
-				throw new LexerException(`SyntaxError: Unexpected token '${converterString.charAt(0)}' at position ${pos}`);
-			} else {
-				res.push(atom);
-				pos += atom.length;
-				converterString = converterString.substr(atom.length);
-			}
+			continue;
 		}
+		//Check to see if the next token is a number
+		let num: [number, number] | null = _checkForNumberToken(converterString);
+		if (num !== null) {
+			res.push(num[0]);
+			pos += num[1];
+			converterString = converterString.substr(num[1]);
+			continue;
+		}
+		//Check to see if the next token is an atomic type
+		let atom: string | null = _checkForAtomToken(converterString);
+		if (atom != null) {
+			res.push(atom);
+			pos += atom.length;
+			converterString = converterString.substr(atom.length);
+			continue;
+		}
+
+		//Unknown token
+		throw new LexerException(`SyntaxError: Unexpected token '${converterString.charAt(0)}' at position ${pos}`);
 	}
 	return res;
 }
@@ -71,6 +82,22 @@ function _checkForSymbolToken(str: string) : SYMBOL_TOKEN|null {
 		if (str.substr(0, token.length) === token) return token
 	}
 	return null;
+}
+
+/**
+ * Get a number matching the start of the provided string.
+ * @param str	The string to check
+ * @example	{@code '0'}	returns {@code [0, 1]}
+ * @example	{@code '1'}	returns {@code [1, 1]}
+ * @example	{@code '99'} returns {@code [99, 2]}
+ * @example	{@code '10 20'} returns {@code [10, 2]}
+ * @example	{@code 'hi'} returns {@code null}
+ * @returns	The found number and the length of its string, or {@code null} if there isn't a match
+ */
+function _checkForNumberToken(str: string) : [number, number]|null {
+	let match: RegExpExecArray | null = /^\d+/.exec(str);
+	if (!match) return null;
+	return [Number.parseInt(match[0]), match[0].length];
 }
 
 /**
