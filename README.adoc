@@ -6,13 +6,13 @@ Alaric Whitehead <aw548@sussex.ac.uk>, Supervisor: Dr Bernhard Reus <bernhard@su
 //URL aliases:
 :chai: https://www.npmjs.com/package/chai
 :electron: https://www.electronjs.org/
+:hwhile: https://github.com/alexj136/HWhile
 :mocha: https://www.npmjs.com/package/mocha
 :whide: https://github.com/sonrad10/Whide
 :typescript: https://www.typescriptlang.org/docs/handbook/2/everyday-types.html
 
 This repository holds the tree conversion language used by the link:{whide}[Whide IDE].
-//TODO: Link WHILE
-The purpose of this language is to validate the formats of link:[WHILE] binary trees, and to convert them to a more human-friendly representation.
+The purpose of this language is to validate the formats of link:{hwhile}[WHILE] binary trees, and to convert them to a more human-friendly representation.
 
 This language was loosely inspired by link:{typescript}[TypeScript's type declaration syntax];
 namely by its union operator (`|`), its `any` type, and its support of literal types.
@@ -42,9 +42,13 @@ FIX_INT = ROOT,FIX_INT      //Comma separated list of types
         | ...               //Ignore any further elements
 
 //Built-in atomic types
-ATOM    = nil               //The value `nil` exactly
+ATOM    = any               //Accept any type
+        | bool              //Accept either 'true' or 'false'
+        | boolean           //Same as 'bool'
+        | false             //Accept the value 'false' ('nil')
         | int               //Integer
-        | any               //Accept any type
+        | nil               //The value `nil` exactly
+        | true              //Accept the value 'true' ('<nil.nil>')
 ----
 
 === Informal Description
