@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { describe, it } from "mocha";
 import lexTree, { TOKEN } from "../../src/trees/TreeLexer";
 import parseTree, { BinaryTree } from "../../src/trees/TreeParser";
+import { t } from "../utils";
 
 describe('TreeParser (valid)', function () {
 	describe(`#parseTree('')`, function () {
@@ -21,53 +22,27 @@ describe('TreeParser (valid)', function () {
 	describe(`#parseTree('<nil.nil>')`, function () {
 		it('should produce a tree with 2 empty leaves', function () {
 			let tokens: TOKEN[] = lexTree('<nil.nil>');
-			expect(parseTree(tokens)).to.eql({
-				left: null,
-				right: null,
-			});
+			expect(parseTree(tokens)).to.eql(
+				t(null, null)
+			);
 		});
 	});
 
 	describe(`#parseTree('<<nil.nil>.<nil.nil>>')`, function () {
 		it('should produce a tree of trees', function () {
 			let tokens: TOKEN[] = lexTree('<<nil.nil>.<nil.nil>>');
-			expect(parseTree(tokens)).to.eql({
-				left: {
-					left: null,
-					right: null,
-				},
-				right: {
-					left: null,
-					right: null,
-				}
-			});
+			expect(parseTree(tokens)).to.eql(
+				t(t(null, null), t(null, null))
+			);
 		});
 	});
 
 	describe(`#parseTree('<<<nil.<nil.nil>>.nil>.<nil.<<nil.nil>.nil>>>')`, function () {
 		it('should produce a complex binary tree', function () {
-			const expected: BinaryTree = {
-				left: {
-					left: {
-						left: null,
-						right: {
-							left: null,
-							right: null
-						}
-					},
-					right: null
-				},
-				right: {
-					left: null,
-					right: {
-						left: {
-							left: null,
-							right: null
-						},
-						right: null
-					}
-				}
-			};
+			const expected: BinaryTree = t(
+				t(t(null, t(null, null)), null),
+				t(null, t(t(null, null), null))
+			);
 			let tokens: TOKEN[] = lexTree('<<<nil.<nil.nil>>.nil>.<nil.<<nil.nil>.nil>>>');
 			const actual: BinaryTree | null = parseTree(tokens);
 			expect(actual).to.eql(expected);
