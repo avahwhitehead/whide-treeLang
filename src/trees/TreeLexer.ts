@@ -1,7 +1,7 @@
 import lexer, { SYMBOL_TOKEN } from "../converter/lexer";
 
 export const TKN_NIL: SYMBOL_TOKEN | 'nil' = 'nil';
-export type TOKEN = SYMBOL_TOKEN | 'nil';
+export type TOKEN = SYMBOL_TOKEN | number | 'nil';
 
 /**
  * Lex a tree string into a token list.

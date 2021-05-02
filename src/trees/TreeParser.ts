@@ -1,5 +1,6 @@
 import { TKN_TREE_OPN as OPEN, TKN_TREE_CLS as CLOSE, TKN_DOT as DOT } from "../../src/converter/lexer";
-import { TOKEN, TKN_NIL as NIL } from "../../src/trees/TreeLexer";
+import { TOKEN } from "./TreeLexer";
+import { _expect, _unexpectedToken } from "../utils/parser";
 import ParserException from "../exceptions/ParserException";
 
 export type BinaryTree = {
@@ -8,23 +9,19 @@ export type BinaryTree = {
 } | null;
 
 /**
- * Make sure the next token is an expected type.
- * Throw an error otherwise
- * @param token		The actual next token
- * @param expected	The expected next token(s)
+ * Convert an integer to a binary tree
+ * @param num	The number to convert
  */
-function _expectToken(token : TOKEN|undefined, ...expected: TOKEN[]) : TOKEN {
-	//No tokens left
-	if (token === undefined) throw new ParserException(`Unexpected end of statement: Expected '${DOT}'`);
-	//Wrong token received
-	if (expected.indexOf(token) === -1) {
-		let expectedString: string;
-		if (expected.length === 1) expectedString = `'${expected[0]}'`;
-		else expectedString = `one of ['${expected.join("', '")}']`;
-		throw new ParserException(`Unexpected token: Expected ${expectedString} but got '${token}'`);
+function _numberToTree(num: number): BinaryTree {
+	let res: BinaryTree = null;
+	while (num > 0) {
+		num--;
+		res = {
+			left: null,
+			right: res,
+		};
 	}
-	//Return the token
-	return token;
+	return res;
 }
 
 /**
@@ -32,35 +29,34 @@ function _expectToken(token : TOKEN|undefined, ...expected: TOKEN[]) : TOKEN {
  * @param tokenList	The list of tokens
  */
 function _tokensToTree(tokenList: TOKEN[]) : BinaryTree {
-	//Get the first token in the list
-	const token : TOKEN|undefined = tokenList.shift();
-	//Treat empty string as `nil`
-	if (token === undefined) return null;
 	//Require the first token to be '<' or 'nil'
-	_expectToken(token, OPEN, NIL);
+	const token : TOKEN|undefined = _expect(tokenList);
 
-	//Of format "OPEN [TREE] DOT [TREE] CLOSE" ("<nil.nil>")
+	//Convert numbers directly to numbers
+	if (typeof token === "number") return _numberToTree(token);
+
+	//Accept `nil`
+	if (token === 'nil') return null;
+
+	//Accept binary trees
+	//"OPEN [TREE] DOT [TREE] CLOSE" ("<nil.nil>")
 	if (token === OPEN) {
 		//Parse the left tree
 		const left : BinaryTree = _tokensToTree(tokenList);
-
 		//Check for the dot separating the subtrees
-		_expectToken(tokenList.shift(), DOT);
-
+		_expect(tokenList, DOT);
 		//Parse the right tree
 		const right : BinaryTree = _tokensToTree(tokenList);
-
 		//Check the opening symbol has a matching closing symbol
-		_expectToken(tokenList.shift(), CLOSE);
-
+		_expect(tokenList, CLOSE);
 		//Return the created tree
 		return {
 			left: left,
 			right: right,
 		};
 	}
-	//Otherwise `nil` - represented by `null`
-	return null;
+
+	throw _unexpectedToken(token);
 }
 
 /**
@@ -68,6 +64,9 @@ function _tokensToTree(tokenList: TOKEN[]) : BinaryTree {
  * @param tokenList		The token list to parse
  */
 export default function parse(tokenList: TOKEN[]) : BinaryTree {
+	//Treat an empty token list as `nil`
+	if (tokenList.length === 0) return null;
+
 	//Parse into a binary tree
 	const tree : BinaryTree = _tokensToTree(tokenList);
 	//Shouldn't be any unparsed tokens
