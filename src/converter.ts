@@ -120,6 +120,39 @@ function _convertListInternal(tree: BinaryTree, conversionTree: ListType, atoms:
 //========
 
 /**
+ * Converts a binary tree to the 'false' value
+ * @param tree	The tree to convert
+ */
+function _convertFalse(tree: BinaryTree): ConversionResult {
+	if (tree === null) return _valueToConversionResult('false');
+	return _treeToConversionResult(tree, `Expected 'false'`);
+}
+
+/**
+ * Converts a binary tree to the 'true' value
+ * @param tree	The tree to convert
+ */
+function _convertTrue(tree: BinaryTree): ConversionResult {
+	if (tree && tree.left === null && tree.right === null) return _valueToConversionResult('true');
+	return _treeToConversionResult(tree, `Expected 'true'`);
+}
+
+/**
+ * Converts a binary tree to a boolean
+ * @param tree	The tree to convert
+ */
+function _convertBoolean(tree: BinaryTree): ConversionResult {
+	//Check to see if the tree is 'false' first
+	let res = _convertFalse(tree);
+	if (!res.error) return res;
+	//Then check to see if it is 'true'
+	res = _convertTrue(tree);
+	if (!res.error) return res;
+	//Otherwise error - not a boolean
+	return _treeToConversionResult(tree, `Expected 'true' or 'false'`);
+}
+
+/**
  * Converts a binary tree to an integer
  * @param tree	The tree to convert
  */
@@ -147,6 +180,13 @@ function _convertAtom(tree: BinaryTree, atom: string, atoms: Map<string, Convers
 			return { tree: _treeToConverted(tree) };
 		case 'int':
 			return _convertNumber(tree);
+		case 'false':
+			return _convertFalse(tree);
+		case 'true':
+			return _convertTrue(tree);
+		case 'bool':
+		case 'boolean':
+			return _convertBoolean(tree);
 	}
 
 	//Check if the atom has been defined by the user

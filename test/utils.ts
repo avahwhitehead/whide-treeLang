@@ -4,6 +4,9 @@ import { BinaryTree, ConvertedBinaryTree } from "../src";
 export const EXPECTED_NIL = `Expected nil`;
 export const EXPECTED_NUMBER = `Not a valid number`;
 export const EXPECTED_TREE = `Expected a tree, got nil`;
+export const EXPECTED_BOOL = `Expected 'true' or 'false'`;
+export const EXPECTED_FALSE = `Expected 'false'`;
+export const EXPECTED_TRUE = `Expected 'true'`;
 export const UNKNOWN_TYPE = `Unknown type '%s'`;
 
 //Other definitions
@@ -34,7 +37,7 @@ export function tn(n: number) : BinaryTree {
  * @param l	The left-hand child
  * @param r	The right-hand child
  */
-export function t(l: BinaryTree, r: BinaryTree): BinaryTree {
+export function t(l: BinaryTree|number, r: BinaryTree|number): BinaryTree {
 	return {
 		left: (typeof l === 'number' ? tn(l) : l),
 		right: (typeof r === 'number' ? tn(r) : r),

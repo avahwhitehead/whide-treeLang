@@ -5,7 +5,18 @@ import parse, { ConversionTree } from "../src/parser";
 import { BinaryTree } from "../src";
 import lexer from "../src/lexer";
 import * as util from "util";
-import { a, ct, cv, t, treeToString, UNKNOWN_TYPE, EXPECTED_TREE, EXPECTED_NIL, EXPECTED_NUMBER } from "./utils";
+import {
+	a,
+	ct,
+	cv,
+	t,
+	treeToString,
+	UNKNOWN_TYPE,
+	EXPECTED_TREE,
+	EXPECTED_NIL,
+	EXPECTED_NUMBER,
+	EXPECTED_FALSE, EXPECTED_TRUE, EXPECTED_BOOL
+} from "./utils";
 
 function _runTest(conversionString: string, tree: BinaryTree, expectedValue: ConversionResult|(()=>ConversionResult), its = '') {
 	let converter: ConversionTree = parse(lexer(conversionString));
@@ -314,4 +325,90 @@ describe(`#runConvert`, function () {
 		},
 		'should fail with an unknown atom'
 	);
+
+	//Test 'true' and 'false'
+	_runTest('false',
+		null,
+		{
+			tree: cv('false'),
+			error: false,
+		},
+		`should produce the node 'false'`
+	);
+	_runTest('false',
+		t(null, null),
+		{
+			tree: ct(null, null, EXPECTED_FALSE),
+			error: true,
+		},
+		`should fail expecting 'false'`
+	);
+	_runTest('true',
+		t(null, null),
+		{
+			tree: cv('true'),
+			error: false,
+		},
+		`should produce the node 'true'`
+	);
+	_runTest('true',
+		null,
+		{
+			tree: cv(null, EXPECTED_TRUE),
+			error: true,
+		},
+		`should fail expecting 'true'`
+	);
+	_runTest('true',
+		t(null, t(null, null)),
+		{
+			tree: ct(null, ct(null, null), EXPECTED_TRUE),
+			error: true,
+		},
+		`should fail expecting 'true'`
+	);
+	_runTest('true',
+		t(t(null, null), null),
+		{
+			tree: ct(ct(null, null), null, EXPECTED_TRUE),
+			error: true,
+		},
+		`should fail expecting 'true'`
+	);
+
+	//Test 'bool' and 'boolean'
+	for (let bool of ['bool', 'boolean']) {
+		_runTest(bool,
+			null,
+			{
+				tree: cv('false'),
+				error: false,
+			},
+			`should produce the node 'false'`
+		);
+		_runTest(bool,
+			t(null, null),
+			{
+				tree: cv('true'),
+				error: false,
+			},
+			`should produce the node 'true'`
+		);
+		_runTest(bool,
+			t(null, t(null, null)),
+			{
+				tree: ct(null, ct(null, null), EXPECTED_BOOL),
+				error: true,
+			},
+			`should fail to match either 'true' or 'false'`
+		);
+		_runTest(bool,
+			t(t(null, null), null),
+			{
+				tree: ct(ct(null, null), null, EXPECTED_BOOL),
+				error: true,
+			},
+			`should fail to match either 'true' or 'false'`
+		);
+	}
 });
