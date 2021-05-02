@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/sonrad10/whide-treeLang/compare/v1.2.3...v1.3.0) (2021-05-02)
+
+
+### Features
+
+* added support for 'true', 'false', 'bool', and 'boolean' to the language ([66840fe](https://github.com/sonrad10/whide-treeLang/commit/66840fe7a733d5d4f6695340013ffe1ba595cea3))
+* added support for custom atomic values to the tree language ([8304ad4](https://github.com/sonrad10/whide-treeLang/commit/8304ad42fede2ca22007e42b10f6f35e20f5ed8b))
+
+
+### Bug Fixes
+
+* fixed typo ([9451074](https://github.com/sonrad10/whide-treeLang/commit/9451074d81e2bdb0634acf560e21bf6dcfc04e16))
+
 ### [1.2.3](https://github.com/sonrad10/whide-treeLang/compare/v1.2.2...v1.2.3) (2021-04-08)
 
 
