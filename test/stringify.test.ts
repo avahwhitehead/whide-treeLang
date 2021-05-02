@@ -82,6 +82,18 @@ describe(`#stringify`, function () {
 	);
 
 	_runTest(
+		`true`,
+		cv('true'),
+		`should show booleans without quotes`
+	);
+
+	_runTest(
+		`false`,
+		cv('false'),
+		`should show booleans without quotes`
+	);
+
+	_runTest(
 		`["hello","world","foo","bar"]`,
 		a("hello", "world", "foo", "bar"),
 		`should produce a list of strings`
