@@ -152,7 +152,7 @@ function _checkForNumberToken(str: string) : [number, number]|null {
  * @returns	The matching atom string, or {@code null} if there isn't a match
  */
 function _checkForAtomToken(str: string) : string|null {
-	let match: RegExpExecArray | null = /^[a-z0-9_]+/i.exec(str);
+	let match: RegExpExecArray | null = /^[@a-z_'][a-z0-9_':=]*/i.exec(str);
 	if (!match) return null;
 	return match[0];
 }

@@ -1,5 +1,14 @@
 import { TKN_COMMA, TKN_DOT, TKN_LIST_CLS, TKN_LIST_OPN, TKN_TREE_CLS, TKN_TREE_OPN } from "../converter/lexer";
-import { TOKEN } from "./TreeLexer";
+import {
+	TKN_ASSIGN,
+	TKN_ASSIGN_1, TKN_CONS,
+	TKN_DO_ASSIGN, TKN_DO_CONS, TKN_DO_HD, TKN_DO_IF, TKN_DO_TL,
+	TKN_DO_WHILE,
+	TKN_FALSE, TKN_HD, TKN_IF, TKN_QUOTE, TKN_TL,
+	TKN_TRUE, TKN_VAR,
+	TKN_WHILE,
+	TOKEN
+} from "./TreeLexer";
 import { _expect, _unexpectedToken } from "../utils/parser";
 import ParserException from "../exceptions/ParserException";
 import { BinaryTree } from "../types/Trees";
@@ -88,19 +97,46 @@ function _tokensToTree(tokenList: TOKEN[]) : BinaryTree {
 
 	switch (token) {
 		case 'nil':
-		case 'false':
-			return null;
-		case 'true':
-			return {
-				left: null,
-				right: null,
-			};
+		case TKN_FALSE:
+			return _numberToTree(0);
+		case TKN_TRUE:
+			return _numberToTree(1);
 		//Accept binary trees
 		case TKN_TREE_OPN:
 			return _interpretTree(tokenList);
 		//Accept lists
 		case TKN_LIST_OPN:
 			return _interpretList(tokenList);
+		//Accept the programs-as-data atoms using the HWhile numerical representations
+		case TKN_ASSIGN:
+		case TKN_ASSIGN_1:
+			return _numberToTree(2);
+		case TKN_DO_ASSIGN:
+			return _numberToTree(3);
+		case TKN_WHILE:
+			return _numberToTree(5);
+		case TKN_DO_WHILE:
+			return _numberToTree(7);
+		case TKN_IF:
+			return _numberToTree(11);
+		case TKN_DO_IF:
+			return _numberToTree(13);
+		case TKN_VAR:
+			return _numberToTree(17);
+		case TKN_QUOTE:
+			return _numberToTree(19);
+		case TKN_HD:
+			return _numberToTree(23);
+		case TKN_DO_HD:
+			return _numberToTree(29);
+		case TKN_TL:
+			return _numberToTree(31);
+		case TKN_DO_TL:
+			return _numberToTree(37);
+		case TKN_CONS:
+			return _numberToTree(41);
+		case TKN_DO_CONS:
+			return _numberToTree(43);
 		//Error otherwise
 		default:
 			throw _unexpectedToken(token);

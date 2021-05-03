@@ -162,6 +162,78 @@ describe('TreeParser (valid)', function () {
 			});
 		});
 	});
+
+	describe(`Programs as data`, function() {
+		//Map of the programs-as-data tokens to their HWhile values
+		let tokens = {
+			'@asgn': 2,
+			'@:=': 2,
+			'@doAsgn': 3,
+			'@while': 5,
+			'@doWhile': 7,
+			'@if': 11,
+			'@doIf': 13,
+			'@var': 17,
+			'@quote': 19,
+			'@hd': 23,
+			'@doHd': 29,
+			'@tl': 31,
+			'@doTl': 37,
+			'@cons': 41,
+			'@doCons': 43,
+		};
+		//Test each individual token
+		for (let [token, val] of Object.entries(tokens)) {
+			describe(`#parseTree('${token}')`, function () {
+				it(`should produce ${val}`, function () {
+					expect(parseTree(lexTree(token))).to.eql(tn(val));
+				});
+			});
+		}
+
+		//Test the `add.while` program (https://github.com/alexj136/HWhile/blob/master/examples/add.while)
+		//Using its programs-as-data representation as produced by HWhile
+		describe(`'add.while'`, function () {
+			it(`should produce the same tree as HWhile's output`, function () {
+				//The program-as-data representation
+				let add = `
+				[0, [
+					[@:=, 1, [@hd, [@var, 0]]],
+					[@:=, 2, [@tl, [@var, 0]]],
+					[@while, [@var, 1], [
+							[@:=, 2, [
+									@cons, [@quote, nil],
+									[@var, 2]
+								]
+							],
+							[@:=, 1, [@tl, [@var, 1]]]
+						]
+					]
+				], 2]`;
+				//The raw tree value
+				const expected_tree = '<nil.<<<<nil.<nil.nil>>.<<nil.nil>.<<<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.' +
+					'<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.nil>>>>>>>>>>>>>>>>>>>>>>>.<<<' +
+					'nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.nil>>>>>>>>>>>>>' +
+					'>>>>.<nil.nil>>.nil>>.nil>>>.<<<nil.<nil.nil>>.<<nil.<nil.nil>>.<<<nil.<nil.<nil.<nil.<nil.<nil.<nil' +
+					'.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil' +
+					'.<nil.<nil.<nil.<nil.nil>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.<<<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<' +
+					'nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.nil>>>>>>>>>>>>>>>>>.<nil.nil>>.nil>>.nil>>>.<<<nil.<nil' +
+					'.<nil.<nil.<nil.nil>>>>>.<<<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<' +
+					'nil.<nil.<nil.nil>>>>>>>>>>>>>>>>>.<<nil.nil>.nil>>.<<<<nil.<nil.nil>>.<<nil.<nil.nil>>.<<<nil.<nil.' +
+					'<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.' +
+					'<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.nil>>' +
+					'>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.<<<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<' +
+					'nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.nil>>>>>>>>>>>>>>>>>>>.<nil.nil>>.<<<nil.<nil.<nil.<nil.<nil.' +
+					'<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.nil>>>>>>>>>>>>>>>>>.<<nil.<nil.nil>>.' +
+					'nil>>.nil>>>.nil>>>.<<<nil.<nil.nil>>.<<nil.nil>.<<<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil' +
+					'.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil' +
+					'.<nil.nil>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.<<<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<nil.<' +
+					'nil.<nil.<nil.<nil.<nil.<nil.nil>>>>>>>>>>>>>>>>>.<<nil.nil>.nil>>.nil>>.nil>>>.nil>>.nil>>>.nil>>>.' +
+					'<<nil.<nil.nil>>.nil>>>';
+				expect(parseTree(lexTree(add))).to.eql(parseTree(lexTree(expected_tree)));
+			});
+		});
+	});
 });
 
 describe('TreeParser (invalid syntax)', function () {
