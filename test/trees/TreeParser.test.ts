@@ -137,6 +137,31 @@ describe('TreeParser (valid)', function () {
 			});
 		});
 	});
+
+	describe(`Booleans`, function() {
+		const FALSE = null;
+		const TRUE = t(null, null);
+
+		describe(`#parseTree('false')`, function () {
+			it('should accept false', function () {
+				let tokens: TOKEN[] = lexTree(`false`);
+				expect(parseTree(tokens)).to.deep.equal(FALSE);
+			});
+		});
+		describe(`#parseTree('true')`, function () {
+			it('should accept true', function () {
+				let tokens: TOKEN[] = lexTree(`true`);
+				expect(parseTree(tokens)).to.deep.equal(TRUE);
+			});
+		});
+		describe(`#parseTree('<false.<true.true>>')`, function () {
+			it('should accept true and false as subtrees', function () {
+				let tokens: TOKEN[] = lexTree(`<false.<true.true>>`);
+				let expected = t(FALSE, t(TRUE, TRUE));
+				expect(parseTree(tokens)).to.deep.equal(expected);
+			});
+		});
+	});
 });
 
 describe('TreeParser (invalid syntax)', function () {

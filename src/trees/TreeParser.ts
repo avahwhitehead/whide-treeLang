@@ -87,9 +87,14 @@ function _tokensToTree(tokenList: TOKEN[]) : BinaryTree {
 	if (typeof token === "number") return _numberToTree(token);
 
 	switch (token) {
-		//Accept `nil`
 		case 'nil':
+		case 'false':
 			return null;
+		case 'true':
+			return {
+				left: null,
+				right: null,
+			};
 		//Accept binary trees
 		case TKN_TREE_OPN:
 			return _interpretTree(tokenList);
