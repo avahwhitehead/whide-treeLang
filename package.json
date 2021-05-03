@@ -4,7 +4,6 @@
   "description": "Library module for the Whide editor's tree language",
   "main": "lib/index.js",
   "module": "lib/index.js",
-  "type": "module",
   "files": [
     "lib/"
   ],
