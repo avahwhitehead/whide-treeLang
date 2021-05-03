@@ -1,8 +1,10 @@
-import runConvert from "./converter";
+import runConvert from "./converter/converter";
 import { BinaryTree, ConvertedBinaryTree } from "./types/Trees";
-import lexer, { TOKEN } from "./lexer";
-import parser, { ConversionTree } from "./parser";
+import lexer, { TOKEN } from "./converter/lexer";
+import parser, { ConversionTree } from "./converter/parser";
 import stringify from "./stringify";
+import lexTree, { TOKEN as TREE_TOKEN } from "./trees/TreeLexer";
+import parseTree from "./trees/TreeParser";
 
 export { BinaryTree, ConvertedBinaryTree } from "./types/Trees";
 
@@ -28,6 +30,18 @@ function _runParse(conversionString: string): ConversionTree {
 	let tokens: TOKEN[] = lexer(conversionString);
 	//Then parse the result into a ConversionTree
 	return parser(tokens);
+}
+
+/**
+ * Convert a string to a binary tree
+ * @param str		The string to parse into a binary tree
+ * @returns	{@link BinaryTree} object representing the string
+ */
+export function treeParser(str: string) : BinaryTree {
+	//Run the lexer to convert to a token list
+	const tokenList: TREE_TOKEN[] = lexTree(str);
+	//Parse into a binary tree
+	return parseTree(tokenList);
 }
 
 /**

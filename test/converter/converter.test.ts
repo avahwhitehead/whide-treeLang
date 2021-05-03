@@ -1,9 +1,9 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import runConvert, { ConversionResult } from "../src/converter";
-import parse, { ConversionTree } from "../src/parser";
-import { BinaryTree } from "../src";
-import lexer from "../src/lexer";
+import runConvert, { ConversionResult } from "../../src/converter/converter";
+import parse, { ConversionTree } from "../../src/converter/parser";
+import { BinaryTree } from "../../src";
+import lexer from "../../src/converter/lexer";
 import * as util from "util";
 import {
 	a,
@@ -21,7 +21,7 @@ import {
 	EXPECTED,
 	tn,
 	EXPECTED_NUMBER
-} from "./utils";
+} from "../utils";
 
 function _runTest(conversionString: string, tree: BinaryTree, expectedValue: ConversionResult|(()=>ConversionResult), its = '', displayTree?: string) {
 	let converter: ConversionTree = parse(lexer(conversionString));
