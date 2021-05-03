@@ -1,6 +1,6 @@
 {
   "name": "@whide/tree-lang",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Library module for the Whide editor's tree language",
   "main": "src/index.ts",
   "module": "src/index.ts",

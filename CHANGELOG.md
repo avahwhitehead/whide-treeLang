@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/sonrad10/whide-treeLang/compare/v1.4.0...v1.5.0) (2021-05-03)
+
+
+### Features
+
+* added boolean support to the tree parser ([3aa3012](https://github.com/sonrad10/whide-treeLang/commit/3aa3012adcbe688c1600c161fad969e041308d02))
+* added support for HWhile's programs-as-data representation ([7e4c6a8](https://github.com/sonrad10/whide-treeLang/commit/7e4c6a8e513f4b59118596e16c5bd170006b9594))
+* added support for lists to the tree parser ([46bceb0](https://github.com/sonrad10/whide-treeLang/commit/46bceb017a88910ad580566b79691535ab2660cf))
+* added support for numbers in binary trees ([cae8056](https://github.com/sonrad10/whide-treeLang/commit/cae80567a588fdfba097d0d0a15c1213092101a0))
+* added tree parser from https://github.com/sonrad10/hwhile-wrapper ([7b0224e](https://github.com/sonrad10/whide-treeLang/commit/7b0224e6d509e4cc1c2bdb13377d19594859673e))
+
 ## [1.4.0](https://github.com/sonrad10/whide-treeLang/compare/v1.3.1...v1.4.0) (2021-05-02)
 
 
