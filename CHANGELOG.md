@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.1](https://github.com/sonrad10/whide-treeLang/compare/v1.5.0...v1.5.1) (2021-05-03)
+
+
+### Bug Fixes
+
+* fixed wrong initial folder location ([45c4542](https://github.com/sonrad10/whide-treeLang/commit/45c45422e162e7b5c20f17a271aba6fb21205f9e))
+
 ## [1.5.0](https://github.com/sonrad10/whide-treeLang/compare/v1.4.0...v1.5.0) (2021-05-03)
 
 
