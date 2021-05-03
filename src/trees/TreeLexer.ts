@@ -9,6 +9,6 @@ export type TOKEN = SYMBOL_TOKEN | number | 'nil';
  * @param str	The string to lex
  */
 export default function lexTree(str: string) : TOKEN[] {
-	//Using `literalsOnly=true` the only accepted token not in `SYMBOL_TOKEN` is `nil`
-	return lexer(str, true) as TOKEN[];
+	//Limit the accepted token strings to only `nil`
+	return lexer(str, false) as TOKEN[];
 }

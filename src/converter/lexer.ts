@@ -28,11 +28,16 @@ export type TOKEN = SYMBOL_TOKEN | string | number;
 
 /**
  * Lex a string into a list of tokens ready for parsing
- * @param str			The string to lex
- * @param literalsOnly	Whether to only allow literal atomic values.
- * 						Literals are tokens in {@link SYMBOL_TOKEN}, numbers (0,1,...) and {@code 'nil'}.
+ * @param str				The string to lex
+ * @param literals			Which atomic type literals to allow.
+ * 							numbers (0,1,...) and {@code 'nil'} are always allowed.
+ * 							{@code false} to allow no further literals.
+ * 							{@code true} to allow any literal (matching the regex {@code /[a-z0-9_]+/i}).
+ * 							{@code string[]} to whitelist only select further literals.
  */
-export default function lexer(str: string, literalsOnly = false) : TOKEN[] {
+export default function lexer(str: string, literals?: boolean) : TOKEN[];
+export default function lexer(str: string, literals?: string[]) : (TOKEN|string)[];
+export default function lexer(str: string, literals: string[]|boolean = true) : (TOKEN|string)[] {
 	let res: TOKEN[] = [];
 	let pos = 0;
 	while (str.length) {
@@ -63,15 +68,7 @@ export default function lexer(str: string, literalsOnly = false) : TOKEN[] {
 		//Check to see if the next token is an atomic type
 		let atom: string | null = _checkForAtomToken(str);
 		if (atom != null) {
-			//Only allow the `nil` atom if only literals are allowed
-			if (literalsOnly) {
-				if (atom !== 'nil') throw _unexpectedToken(atom, pos);
-				//Allow the nil token
-				res.push(atom);
-				pos += atom.length;
-				str = str.substr(atom.length);
-				continue;
-			}
+			if (!_isTokenAllowed(atom, literals)) throw _unexpectedToken(atom, pos);
 			//Allow any token otherwise
 			res.push(atom);
 			pos += atom.length;
@@ -83,6 +80,25 @@ export default function lexer(str: string, literalsOnly = false) : TOKEN[] {
 		throw _unexpectedToken(str.charAt(0), pos);
 	}
 	return res;
+}
+
+/**
+ * Check whether an atomic literal type is allowed given the rules
+ * @param atom			The atom string to check
+ * @param literals		Which atomic type literals to allow.
+ * 						numbers (0,1,...) and {@code 'nil'} are always allowed.
+ * 						{@code false} to allow no further literals.
+ * 						{@code true} to allow any literal (matching the regex {@code /[a-z0-9_]+/i}).
+ * 						{@code string[]} to whitelist only select further literals.
+ */
+function _isTokenAllowed(atom: string, literals: string[]|boolean) {
+	//`nil` is always allowed
+	//Other atoms are accepted if `literals` is true
+	if (atom === 'nil' || literals === true) return true;
+	//All other literals are rejected
+	if (literals === false) return false;
+	//Otherwise check if the literal was whitelisted
+	return literals.includes(atom);
 }
 
 /**
