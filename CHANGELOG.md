@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.2](https://github.com/sonrad10/whide-treeLang/compare/v1.5.1...v1.5.2) (2021-05-03)
+
+
+### Bug Fixes
+
+* fixed error when importing library in other modules ([eccd7ac](https://github.com/sonrad10/whide-treeLang/commit/eccd7acd9b11a13286c9cf236ece58e36994a600))
+
 ### [1.5.1](https://github.com/sonrad10/whide-treeLang/compare/v1.5.0...v1.5.1) (2021-05-03)
 
 
