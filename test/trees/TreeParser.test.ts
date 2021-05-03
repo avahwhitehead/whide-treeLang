@@ -85,6 +85,58 @@ describe('TreeParser (valid)', function () {
 			});
 		});
 	});
+
+	describe(`Lists`, function() {
+		describe(`#parseTree('[]')`, function () {
+			it('should parse the empty list', function () {
+				let tokens: TOKEN[] = lexTree(`[]`);
+				let expected = null;
+				expect(parseTree(tokens)).to.deep.equal(expected);
+			});
+		});
+		describe(`#parseTree('[1]')`, function () {
+			it('should parse a list with 1 element', function () {
+				let tokens: TOKEN[] = lexTree(`[1]`);
+				let expected = t(tn(1), null);
+				expect(parseTree(tokens)).to.deep.equal(expected);
+			});
+		});
+		describe(`#parseTree('[1, 2]')`, function () {
+			it('should parse a list of numbers', function () {
+				let tokens: TOKEN[] = lexTree(`[1, 2]`);
+				let expected = t(tn(1), t(tn(2), null));
+				expect(parseTree(tokens)).to.deep.equal(expected);
+			});
+		});
+		describe(`#parseTree('[1, 2, <nil.nil>, 4]')`, function () {
+			it('should parse a list of multiple types', function () {
+				let tokens: TOKEN[] = lexTree(`[1, 2, <nil.nil>, 4]`);
+				let expected = t(tn(1), t(tn(2), t(t(null, null), t(tn(4), null))));
+				expect(parseTree(tokens)).to.deep.equal(expected);
+			});
+		});
+		describe(`#parseTree('[[[[1,2]]]]')`, function () {
+			it('should parse nested lists', function () {
+				let tokens: TOKEN[] = lexTree(`[[[[1,2]]]]`);
+				let expected = t(t(t(t(tn(1), t(tn(2), null)), null), null), null);
+				expect(parseTree(tokens)).to.deep.equal(expected);
+			});
+		});
+		describe(`#parseTree('[[1,2], [<nil.nil>], 5]')`, function () {
+			it('should parse a complex list', function () {
+				let tokens: TOKEN[] = lexTree(`[[1,2], [<nil.nil>], 5]`);
+				let expected =
+					t(
+						t(tn(1), t(tn(2), null)),
+						t(
+							t(t(null, null), null),
+							t(tn(5), null)
+						)
+					);
+				expect(parseTree(tokens)).to.deep.equal(expected);
+			});
+		});
+	});
 });
 
 describe('TreeParser (invalid syntax)', function () {

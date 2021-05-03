@@ -1,4 +1,4 @@
-import { TKN_TREE_OPN, TKN_TREE_CLS, TKN_DOT } from "../converter/lexer";
+import { TKN_COMMA, TKN_DOT, TKN_LIST_CLS, TKN_LIST_OPN, TKN_TREE_CLS, TKN_TREE_OPN } from "../converter/lexer";
 import { TOKEN } from "./TreeLexer";
 import { _expect, _unexpectedToken } from "../utils/parser";
 import ParserException from "../exceptions/ParserException";
@@ -41,6 +41,41 @@ function _interpretTree(tokens: TOKEN[]): BinaryTree {
 }
 
 /**
+ * Produce a list from a list of tokens
+ * @param tokens	The token list
+ */
+function _interpretList(tokens: TOKEN[]): BinaryTree {
+	//If the list is empty, return just the terminator `nil`
+	if (tokens[0] === TKN_LIST_CLS) {
+		tokens.shift();
+		return null;
+	}
+
+	//Pointers to the top and bottom of the binary tree
+	//So the tree can be built downwards (in-order)
+	let head: BinaryTree = {
+		//Parse the first node immediately
+		left: _tokensToTree(tokens),
+		right: null,
+	}
+	let tail: BinaryTree = head;
+
+	//Keep parsing the list until a terminator symbol (']') is found
+	//There must be a separator (`,`) between each element
+	while (_expect(tokens, TKN_COMMA, TKN_LIST_CLS) === TKN_COMMA) {
+		//Add the next element to the end of the tree
+		tail.right = {
+			left: _tokensToTree(tokens),
+			right: null,
+		}
+		//Move the tail pointer down the tree
+		tail = tail.right;
+	}
+	//Return the produced tree
+	return head;
+}
+
+/**
  * Parse a token list into a tree node
  * @param tokenList	The list of tokens
  */
@@ -58,6 +93,9 @@ function _tokensToTree(tokenList: TOKEN[]) : BinaryTree {
 		//Accept binary trees
 		case TKN_TREE_OPN:
 			return _interpretTree(tokenList);
+		//Accept lists
+		case TKN_LIST_OPN:
+			return _interpretList(tokenList);
 		//Error otherwise
 		default:
 			throw _unexpectedToken(token);
